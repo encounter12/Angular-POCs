@@ -14,10 +14,10 @@ import {
 
 
 @Component({
-  selector: 'app-address-info',
-  templateUrl: './address-info.component.html',
-  styleUrls: ['./address-info.component.css'],
-  providers: [
+	selector: 'app-address-info',
+	templateUrl: './address-info.component.html',
+	styleUrls: ['./address-info.component.css'],
+	providers: [
 		{
 			provide: NG_VALUE_ACCESSOR,
 			useExisting: forwardRef(() => AddressInfoComponent),
@@ -32,43 +32,43 @@ import {
 })
 export class AddressInfoComponent implements OnInit, ControlValueAccessor, Validator {
 
-  public addressForm: FormGroup;
+	public addressForm: FormGroup;
 
-  constructor(private formBuilder: FormBuilder, private ngForm: FormGroupDirective) {
-  }
+	constructor(private formBuilder: FormBuilder, private ngForm: FormGroupDirective) {
+	}
 
-  ngOnInit() {
-    this.addressForm = this.formBuilder.group({
+	ngOnInit() {
+		this.addressForm = this.formBuilder.group({
 			addressLine: [null, [Validators.required]],
 			areacode: [null, [Validators.required, Validators.maxLength(5)]]
 		});
 
 		console.log(this.ngForm);
-  }
+	}
 
-  get addressLine() { return this.addressForm.get('addressLine'); }
+	get addressLine() { return this.addressForm.get('addressLine'); }
 
-  get areacode() { return this.addressForm.get('areacode'); }
+	get areacode() { return this.addressForm.get('areacode'); }
 
-  public onTouched: () => void = () => {};
+	public onTouched: () => void = () => {};
 
-  writeValue(val: any): void {
-    val && this.addressForm.setValue(val, { emitEvent: false });
-  }
+	writeValue(val: any): void {
+		val && this.addressForm.setValue(val, { emitEvent: false });
+	}
 
-  registerOnChange(fn: any): void {
-    console.log("on change");
-    this.addressForm.valueChanges.subscribe(fn);
-  }
+	registerOnChange(fn: any): void {
+		console.log("on change");
+		this.addressForm.valueChanges.subscribe(fn);
+	}
 
-  registerOnTouched(fn: any): void {
-    console.log("on blur");
-    this.onTouched = fn;
-  }
+	registerOnTouched(fn: any): void {
+		console.log("on blur");
+		this.onTouched = fn;
+	}
 
-  setDisabledState?(isDisabled: boolean): void {
-    isDisabled ? this.addressForm.disable() : this.addressForm.enable();
-  }
+	setDisabledState?(isDisabled: boolean): void {
+		isDisabled ? this.addressForm.disable() : this.addressForm.enable();
+	}
 
 	validate(control: AbstractControl): ValidationErrors {
 		const form = this.addressForm;
@@ -77,9 +77,9 @@ export class AddressInfoComponent implements OnInit, ControlValueAccessor, Valid
 		}
 
 		const errors = {};
-		Object.keys(form.controls).forEach(k => {
-			if (form.controls[k].invalid) {
-				errors[k] = form.controls[k].errors;
+		Object.keys(form.controls).forEach(key => {
+			if (form.controls[key].invalid) {
+				errors[key] = form.controls[key].errors;
 			}
 		});
 

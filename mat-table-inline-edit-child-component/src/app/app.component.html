@@ -1,13 +1,13 @@
 <form [formGroup]="namesForm">
-  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" formArrayName="names">
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" formArrayName="myNames" multiTemplateDataRows>
     <ng-container matColumnDef="position">
-      <th mat-header-cell *matHeaderCellDef> No. </th>
+      <th mat-header-cell *matHeaderCellDef>No.</th>
       <td mat-cell *matCellDef="let element"> {{element.position}} </td>
     </ng-container>
 
     <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef> Name </th>
-      <td mat-cell *matCellDef="let element; let rowIndex = index" [formGroupName]="rowIndex">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let element; let rowIndex = dataIndex" [formGroupName]="rowIndex">
         <mat-form-field floatLabel="never">
           <input matInput placeholder="Name" formControlName="name">
         </mat-form-field>
@@ -15,12 +15,36 @@
     </ng-container>
 
     <ng-container matColumnDef="weight">
-      <th mat-header-cell *matHeaderCellDef> Weight </th>
-      <td mat-cell *matCellDef="let element"> {{element.weight}} </td>
+      <th mat-header-cell *matHeaderCellDef>Weight</th>
+      <td mat-cell *matCellDef="let element; let rowIndex = dataIndex">
+        {{element.weight}}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="expandedDetail">
+      <td mat-cell *matCellDef="let rowElement; let rowIndex = dataIndex" [formGroupName]="rowIndex" [attr.colspan]="displayedColumns.length">
+        <div
+          class="element-detail"
+          *ngIf="rowElement.isotopes?.length"
+          [@detailExpand]="rowElement == expandedElement ? 'expanded' : 'collapsed'">
+            <div
+              class="inner-table mat-elevation-z8"
+              *ngIf="expandedElement">
+                <app-row-details formControlName="isotopesGroup"></app-row-details>
+            </div>
+        </div>
+      </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    <tr
+      mat-row
+      *matRowDef="let rowElement; columns: displayedColumns;"
+      [class.element-row]="rowElement.isotopes?.length"
+      [class.expanded-row]="expandedElement === rowElement"
+      (click)="toggleRow(rowElement)">
+    </tr>
+    <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row" ></tr>
   </table>
 </form>
 <p>

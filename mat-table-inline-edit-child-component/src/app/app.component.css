@@ -1,3 +1,24 @@
 table {
-    width: 100%;
+    width: 100% !important;
+}
+
+.element-detail {
+    overflow: hidden;
+    display: flex;
+}
+
+tr.element-row:not(.expanded-row):hover {
+    background: #777;
+}
+  
+tr.element-row:not(.expanded-row):active {
+    background: #efefef;
+}
+
+.element-row td {
+    border-bottom-width: 0;
+}
+
+tr.detail-row {
+    height: 0;
 }
