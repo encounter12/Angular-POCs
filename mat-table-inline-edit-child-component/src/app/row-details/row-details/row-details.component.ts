@@ -1,18 +1,18 @@
-import { Component, forwardRef, Input, OnInit, ChangeDetectorRef } from '@angular/core';
-
-import { Isotope } from 'src/app/interfaces/isotope';
-
+import { Component, forwardRef, OnDestroy } from '@angular/core';
 import {
   FormGroup,
 	FormBuilder,
 	ControlValueAccessor,
 	NG_VALUE_ACCESSOR,
-	FormGroupDirective,
 	Validator,
 	NG_VALIDATORS,
 	AbstractControl,
 	ValidationErrors
 } from '@angular/forms';
+
+import { Subscription } from 'rxjs';
+
+import { Isotope } from 'src/app/interfaces/isotope';
 
 @Component({
   selector: 'app-row-details',
@@ -31,13 +31,13 @@ import {
 		}
 	]
 })
-export class RowDetailsComponent implements OnInit, ControlValueAccessor, Validator {
+export class RowDetailsComponent implements OnDestroy, ControlValueAccessor, Validator {
   public innerDisplayColumns: string[] = [];
-
   public isotopes: Isotope[] = [];
 
-  public onTouched: () => void = () => {
-  };
+  onChangeSubscription: Subscription | undefined;
+
+  public onTouched: Function = () => {};
 
   public onChanged: (isotope: Isotope[]) => void = () => {
   };
@@ -49,15 +49,15 @@ export class RowDetailsComponent implements OnInit, ControlValueAccessor, Valida
   constructor(private formBuilder: FormBuilder) {
   }
 
-  ngOnInit(): void {
-     this.isotopesGroup.valueChanges.subscribe((isotopesArray: Isotope[]) => {
-      this.onChanged(isotopesArray);
-    });
+  ngOnDestroy() {
+    if (this.onChangeSubscription) {
+      this.onChangeSubscription.unsubscribe();
+    }
   }
 
   getInnerDisplayColumns(): string[] {
-    const firstElement = this.isotopesGroup.get('isotopesArray')?.value[0];
-    return Object.keys(firstElement);
+    const isotopeArrayFirstElement = this.isotopesGroup.get('isotopesArray')?.value[0];
+    return Object.keys(isotopeArrayFirstElement);
   }
 
 	writeValue(val: Isotope[]): void {
@@ -65,32 +65,35 @@ export class RowDetailsComponent implements OnInit, ControlValueAccessor, Valida
       return;
     }
 
-    if (this.isotopesGroup.get('isotopesArray')?.value.length > 0) {
-      return;
-    }
-
     const isotopeArray = this.formBuilder.array(
-      val.map((x: any) => {
-        return this.formBuilder.group({
-          name: this.formBuilder.control(x.name),
-          protons: this.formBuilder.control(x.protons),
-          neutrons: this.formBuilder.control(x.neutrons)
-        });
+      val.map((x: any) => { 
+        return this.buildIsotopeFormGroup(x); 
       })
     );
 
     this.isotopesGroup.setControl('isotopesArray', isotopeArray, { emitEvent: false });
+    
+    this.innerDisplayColumns = this.getInnerDisplayColumns();
 
     this.isotopes = this.isotopesGroup.get('isotopesArray')?.value;
-
-    this.innerDisplayColumns = this.getInnerDisplayColumns();
 	}
 
-	registerOnChange(fn: any): void {
-    this.onChanged = fn;
-	}
+  buildIsotopeFormGroup(isotope: any) {
+    let isotopeFormGroupObj: any = {};
 
-	registerOnTouched(fn: any): void {
+    Object.keys(isotope).forEach((key: string) => {
+      isotopeFormGroupObj[key] = this.formBuilder.control(isotope[key]);
+    });
+    
+    const isotopeGroup = this.formBuilder.group(isotopeFormGroupObj);
+    return isotopeGroup;
+  }
+
+	registerOnChange(onChange: any) {
+    this.onChangeSubscription = this.isotopesGroup.valueChanges.subscribe(onChange);
+  }
+
+	registerOnTouched(fn: Function): void {
 		this.onTouched = fn;
 	}
 
