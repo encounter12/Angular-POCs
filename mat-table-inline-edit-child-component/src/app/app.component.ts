@@ -10,7 +10,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
     position: 1,
     name: 'Hydrogen',
     weight: 1.0079,
-    isotopes: [
+    elements: [
     {
      name: 'Protium',
      protons: 1, 
@@ -31,7 +31,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
     position: 2,
     name: 'Helium',
     weight: 4.0026,
-    isotopes: [
+    elements: [
     {
       name: 'Helium-2 (diproton)',
       protons: 2, 
@@ -66,8 +66,8 @@ export class AppComponent implements OnInit {
   displayedColumns: string[] = ['position', 'name', 'weight'];
   dataSource = ELEMENT_DATA;
 
-  public elementsNames: FormArray = this.formBuilder.array([]);
-  public namesForm: FormGroup = this.formBuilder.group({ 'myNames': this.elementsNames });
+  public parentFormFormArray: FormArray = this.formBuilder.array([]);
+  public parentFormGroup: FormGroup = this.formBuilder.group({ 'parentFormFormArray': this.parentFormFormArray });
 
   expandedElement: PeriodicElement | null | undefined;
 
@@ -75,22 +75,22 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.dataSource.forEach((pe: PeriodicElement) => this.addRow(pe.position, pe.name, pe.weight, pe.isotopes));
+    this.dataSource.forEach((pe: PeriodicElement) => this.addRow(pe.position, pe.name, pe.weight, pe.elements));
   }
 
-  addRow(position: number, name: string, weight: number, isotopes: Isotope[]) {
+  addRow(position: number | undefined, name: string | undefined | null, weight: number | undefined, elements: Isotope[]) {
     const row = this.formBuilder.group({
       position: position,
       name: name,
       weight: weight,
-      isotopesGroup: this.formBuilder.control(isotopes)
+      expandedDetail: this.formBuilder.control(elements)
     });
 
-    this.elementsNames.push(row);
+    this.parentFormFormArray.push(row);
   }
 
   toggleRow(element: PeriodicElement) {
-    element.isotopes && element.isotopes.length ?
+    element.elements && element.elements.length ?
       (this.expandedElement = this.expandedElement === element ? null : element) : null;
 
     this.changeDetectorRef.detectChanges();

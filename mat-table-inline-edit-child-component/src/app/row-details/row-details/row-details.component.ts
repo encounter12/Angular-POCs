@@ -12,8 +12,6 @@ import {
 
 import { Subscription } from 'rxjs';
 
-import { Isotope } from 'src/app/interfaces/isotope';
-
 @Component({
   selector: 'app-row-details',
   templateUrl: './row-details.component.html',
@@ -31,19 +29,19 @@ import { Isotope } from 'src/app/interfaces/isotope';
 		}
 	]
 })
-export class RowDetailsComponent implements OnDestroy, ControlValueAccessor, Validator {
+export class RowDetailsComponent<T> implements OnDestroy, ControlValueAccessor, Validator {
   public innerDisplayColumns: string[] = [];
-  public isotopes: Isotope[] = [];
+  public subrowDataSource: T[] = [];
 
   onChangeSubscription: Subscription | undefined;
 
   public onTouched: Function = () => {};
 
-  public onChanged: (isotope: Isotope[]) => void = () => {
+  public onChanged: (subrowArray: T[]) => void = () => {
   };
 
-  public isotopesGroup: FormGroup = this.formBuilder.group({ 
-    isotopesArray: this.formBuilder.array([])
+  public subrowGroup: FormGroup = this.formBuilder.group({ 
+    subrowArray: this.formBuilder.array([])
   })
 
   constructor(private formBuilder: FormBuilder) {
@@ -56,41 +54,41 @@ export class RowDetailsComponent implements OnDestroy, ControlValueAccessor, Val
   }
 
   getInnerDisplayColumns(): string[] {
-    const isotopeArrayFirstElement = this.isotopesGroup.get('isotopesArray')?.value[0];
-    return Object.keys(isotopeArrayFirstElement);
+    const arrayFirstElement = this.subrowGroup.get('subrowArray')?.value[0];
+    return Object.keys(arrayFirstElement);
   }
 
-	writeValue(val: Isotope[]): void {
+	writeValue(val: T[]): void {
     if (!val) {
       return;
     }
 
-    const isotopeArray = this.formBuilder.array(
-      val.map((x: any) => { 
-        return this.buildIsotopeFormGroup(x); 
+    const subrowArray = this.formBuilder.array(
+      val.map((x: T) => { 
+        return this.buildArrayElementFormGroup(x); 
       })
     );
 
-    this.isotopesGroup.setControl('isotopesArray', isotopeArray, { emitEvent: false });
+    this.subrowGroup.setControl('subrowArray', subrowArray, { emitEvent: false });
     
     this.innerDisplayColumns = this.getInnerDisplayColumns();
 
-    this.isotopes = this.isotopesGroup.get('isotopesArray')?.value;
+    this.subrowDataSource = this.subrowGroup.get('subrowArray')?.value;
 	}
 
-  buildIsotopeFormGroup(isotope: any) {
-    let isotopeFormGroupObj: any = {};
+  buildArrayElementFormGroup(element: T) {
+    let arrayElementFormGroupObj: any = {};
 
-    Object.keys(isotope).forEach((key: string) => {
-      isotopeFormGroupObj[key] = this.formBuilder.control(isotope[key]);
+    Object.keys(element).forEach((key: string) => {
+      arrayElementFormGroupObj[key] = this.formBuilder.control((element as any)[key]);
     });
     
-    const isotopeGroup = this.formBuilder.group(isotopeFormGroupObj);
-    return isotopeGroup;
+    const arrayElementFormGroup = this.formBuilder.group(arrayElementFormGroupObj);
+    return arrayElementFormGroup;
   }
 
 	registerOnChange(onChange: any) {
-    this.onChangeSubscription = this.isotopesGroup.valueChanges.subscribe(onChange);
+    this.onChangeSubscription = this.subrowGroup.valueChanges.subscribe(onChange);
   }
 
 	registerOnTouched(fn: Function): void {
@@ -98,7 +96,7 @@ export class RowDetailsComponent implements OnDestroy, ControlValueAccessor, Val
 	}
 
 	setDisabledState?(isDisabled: boolean): void {
-		isDisabled ? this.isotopesGroup.disable() : this.isotopesGroup.enable();
+		isDisabled ? this.subrowGroup.disable() : this.subrowGroup.enable();
 	}
 
 	validate(control: AbstractControl): ValidationErrors | null {

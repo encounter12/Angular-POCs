@@ -1,10 +1,8 @@
-import { MatTableDataSource } from '@angular/material/table';
 import { Isotope } from "./isotope";
 
-export interface PeriodicElement {
-    name: string;
-    position: number;
-    weight: number;
-    isotopes: Isotope[];
+export class PeriodicElement {
+    public name: string | undefined;
+    public position: number | undefined;
+    public weight: number | undefined;
+    public elements: Isotope[] = []; 
 }
-  
