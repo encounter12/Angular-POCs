@@ -13,7 +13,7 @@ export const PERIODIC_ELEMENTS_COLUMNS_DATA: ColumnHeader[] = [
     {
         name: 'name',
         displayName: 'Name',
-        isEditable: false,
+        isEditable: true,
         isVisible: true,
         validators: [],
         propertyType: 'text'
