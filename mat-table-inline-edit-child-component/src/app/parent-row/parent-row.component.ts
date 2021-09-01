@@ -53,14 +53,14 @@ export class ParentRowComponent<T> implements OnInit {
         this.columnsProps = Object.keys(firstDataSourceElement)
           .filter((key: string) => (firstDataSourceElement as any)[key].constructor !== Array);
 
-        this.displayColumns = this.buildDefaultDisplayColumns(this.columnsProps);
+        this.displayColumns = this.buildDefaultDisplayColumns(this.columnsProps, firstDataSourceElement);
       }
     } else {
       this.columnsProps = this.displayColumns.map((col: ColumnHeader) => col.name);
     }
   }
 
-  buildDefaultDisplayColumns(colNames: string[]): ColumnHeader[] {
+  buildDefaultDisplayColumns(colNames: string[], element: any): ColumnHeader[] {
    
     let defaultDisplayColumns: ColumnHeader[] = [];
 
@@ -70,13 +70,32 @@ export class ParentRowComponent<T> implements OnInit {
         displayName: this.capitalizeFirstLetter(colName),
         isVisible: true,
         isEditable: false,
-        validators: []
+        validators: [],
+        propertyType: this.getPropertyType(element[colName])
       };
 
       defaultDisplayColumns.push(columnHeader);
     });
 
     return defaultDisplayColumns;
+  }
+
+  getPropertyType(propertyValue: any): string {
+    const propValueType = typeof propertyValue;
+    let outputValueType: string = '';
+
+    switch (propValueType) {
+      case 'string':
+        outputValueType = 'text';
+        break;
+      case 'number':
+        outputValueType = 'number'
+        break;
+      default:
+        throw Error(`Sorry, we are out of ${propertyValue}.`);
+    }
+
+    return outputValueType;
   }
 
   capitalizeFirstLetter(str: string) {

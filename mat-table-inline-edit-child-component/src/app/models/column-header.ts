@@ -8,4 +8,6 @@ export class ColumnHeader {
     public isVisible: boolean = true;
 
     public validators: string[] = [];
+
+    public propertyType: string = '';
 }

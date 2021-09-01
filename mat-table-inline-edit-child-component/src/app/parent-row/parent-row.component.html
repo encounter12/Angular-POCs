@@ -1,15 +1,24 @@
 <form [formGroup]="parentFormGroup">
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" formArrayName="parentFormFormArray" multiTemplateDataRows>
-        <ng-container matColumnDef="{{displayCol.name}}" *ngFor="let displayCol of displayColumns">
+        <ng-container matColumnDef="{{displayCol.name}}" *ngFor="let displayCol of displayColumns; let colIndex = index">
             <th mat-header-cell *matHeaderCellDef [hidden]="!displayCol.isVisible">{{displayCol.displayName}}</th>
             <td
                 mat-cell
-                *matCellDef="let element; let rowIndex = dataIndex"
+                *matCellDef="let row; let rowIndex = dataIndex"
                 [hidden]="!displayCol.isVisible"
                 [formGroupName]="rowIndex">
-                    <mat-form-field floatLabel="never">
-                    <input matInput placeholder="{{displayCol.displayName}}" [formControlName]="displayCol.name">
-                    </mat-form-field>
+                    <ng-container [ngSwitch]="displayCol.propertyType" *ngIf="!displayCol.isEditable">
+                        <ng-container *ngSwitchCase="'text'">{{row[displayCol.name]}}</ng-container>
+                        <ng-container *ngSwitchCase="'number'">{{row[displayCol.name]}}</ng-container>
+                    </ng-container>
+                    <ng-container [ngSwitch]="displayCol.propertyType" *ngIf="displayCol.isEditable">
+                        <mat-form-field floatLabel="never" *ngSwitchCase="'text'">
+                            <input matInput type="text" placeholder="{{displayCol.displayName}}" [formControlName]="displayCol.name">
+                        </mat-form-field>
+                        <mat-form-field floatLabel="never" *ngSwitchCase="'number'">
+                            <input matInput type="number" placeholder="{{displayCol.displayName}}" [formControlName]="displayCol.name">
+                        </mat-form-field>
+                    </ng-container>
             </td>
         </ng-container>
 

@@ -7,21 +7,24 @@ export const PERIODIC_ELEMENTS_COLUMNS_DATA: ColumnHeader[] = [
         displayName: 'Position',
         isEditable: false,
         isVisible: true,
-        validators: []
+        validators: [],
+        propertyType: 'number'
     },
     {
         name: 'name',
         displayName: 'Name',
         isEditable: true,
         isVisible: true,
-        validators: []
+        validators: [],
+        propertyType: 'text'
     },
     {
         name: 'weight',
         displayName: 'Weight',
         isEditable: true,
         isVisible: true,
-        validators: []
+        validators: [],
+        propertyType: 'number'
     }
 ];
 
@@ -31,21 +34,24 @@ export const PERIODIC_ELEMENTS_INNER_COLUMNS_DATA: ColumnHeader[] = [
         displayName: 'Name',
         isEditable: true,
         isVisible: true,
-        validators: []
+        validators: [],
+        propertyType: 'text'
     },
     {
         name: 'protons',
         displayName: 'Protons',
         isEditable: true,
         isVisible: true,
-        validators: []
+        validators: [],
+        propertyType: 'number'
     },
     {
         name: 'neutrons',
         displayName: 'Neutrons',
         isEditable: true,
         isVisible: true,
-        validators: []
+        validators: [],
+        propertyType: 'number'
     }
 ];
 
