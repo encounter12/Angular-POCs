@@ -60,7 +60,7 @@ export class ParentRowComponent<T> implements OnInit {
     }
   }
 
-  buildDefaultDisplayColumns(colNames: string[], element: any): ColumnHeader[] {
+  buildDefaultDisplayColumns(colNames: string[], element: T): ColumnHeader[] {
    
     let defaultDisplayColumns: ColumnHeader[] = [];
 
@@ -71,7 +71,7 @@ export class ParentRowComponent<T> implements OnInit {
         isVisible: true,
         isEditable: false,
         validators: [],
-        propertyType: this.getPropertyType(element[colName])
+        propertyType: this.getPropertyType((element as any)[colName])
       };
 
       defaultDisplayColumns.push(columnHeader);
@@ -92,7 +92,7 @@ export class ParentRowComponent<T> implements OnInit {
         outputValueType = 'number'
         break;
       default:
-        throw Error(`Sorry, we are out of ${propertyValue}.`);
+        outputValueType = 'text';
     }
 
     return outputValueType;
