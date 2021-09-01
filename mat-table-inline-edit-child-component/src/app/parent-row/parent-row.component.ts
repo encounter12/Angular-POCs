@@ -17,11 +17,11 @@ import { ColumnHeader } from '../models/column-header';
 })
 export class ParentRowComponent<T> implements OnInit {
   @Input() displayColumns: ColumnHeader[] = [];
+  @Input() innerDisplayColumns: ColumnHeader[] = [];
   @Input() dataSource: T[] = [];
 
   @Output() onFormUpdate = new EventEmitter<any[]>();
 
-  displayColumnsInternal: ColumnHeader[] = [];
   expandedDetailFormControlName: string = '';
   columnsProps: string[] = [];
 

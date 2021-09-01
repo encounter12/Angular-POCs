@@ -1,6 +1,6 @@
 <form [formGroup]="parentFormGroup">
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" formArrayName="parentFormFormArray" multiTemplateDataRows>
-        <ng-container matColumnDef="{{displayCol.name}}" *ngFor="let displayCol of displayColumns; let colIndex = index">
+        <ng-container matColumnDef="{{displayCol.name}}" *ngFor="let displayCol of displayColumns">
             <th mat-header-cell *matHeaderCellDef [hidden]="!displayCol.isVisible">{{displayCol.displayName}}</th>
             <td
                 mat-cell
@@ -31,7 +31,7 @@
                     <div
                     class="inner-table mat-elevation-z8"
                     *ngIf="expandedElement">
-                        <app-row-details formControlName="{{expandedDetailFormControlName}}"></app-row-details>
+                        <app-row-details formControlName="{{expandedDetailFormControlName}}" [innerDisplayColumns]="innerDisplayColumns"></app-row-details>
                     </div>
                 </div>
             </td>

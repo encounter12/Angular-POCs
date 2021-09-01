@@ -1,4 +1,4 @@
-import { Component, forwardRef, OnInit, OnDestroy } from '@angular/core';
+import { Component, forwardRef, OnInit, OnDestroy, Input } from '@angular/core';
 import {
   FormGroup,
 	FormBuilder,
@@ -12,6 +12,7 @@ import {
 } from '@angular/forms';
 
 import { Subscription } from 'rxjs';
+import { ColumnHeader } from 'src/app/models/column-header';
 
 @Component({
   selector: 'app-row-details',
@@ -31,7 +32,11 @@ import { Subscription } from 'rxjs';
 	]
 })
 export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAccessor, Validator {
-  public innerDisplayColumns: string[] = [];
+  
+  @Input() innerDisplayColumns: ColumnHeader[] = [];
+  
+  public innerDisplayColumnsProps: string[] = [];
+
   public subrowDataSource: T[] = [];
 
   onChangeSubscription: Subscription | undefined;
@@ -49,7 +54,6 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
   }
 
   ngOnInit() {
-    let gosho = 1;
   }
 
   ngOnDestroy() {
@@ -79,10 +83,67 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
 
     this.subrowGroup.setControl('subrowArray', subrowArray, { emitEvent: false });
     
-    this.innerDisplayColumns = this.getInnerDisplayColumns(arr);
+    this.buildDisplayColumns(arr);
 
     this.subrowDataSource = arr;
 	}
+
+  buildDisplayColumns(arr: T[]) {
+    const firstDataSourceElement = arr[0];
+
+    if (this.innerDisplayColumns.length === 0) {
+
+      if (firstDataSourceElement) {
+        this.innerDisplayColumnsProps = Object.keys(firstDataSourceElement);
+
+        this.innerDisplayColumns = this.buildDefaultDisplayColumns(this.innerDisplayColumnsProps, firstDataSourceElement);
+      }
+    } else {
+      this.innerDisplayColumnsProps = this.innerDisplayColumns.map((col: ColumnHeader) => col.name);
+    }
+  }
+
+  buildDefaultDisplayColumns(colNames: string[], element: T): ColumnHeader[] {
+   
+    let defaultDisplayColumns: ColumnHeader[] = [];
+
+    colNames.forEach((colName) => {
+      const columnHeader: ColumnHeader = {
+        name: colName,
+        displayName: this.capitalizeFirstLetter(colName),
+        isVisible: true,
+        isEditable: false,
+        validators: [],
+        propertyType: this.getPropertyType((element as any)[colName])
+      };
+
+      defaultDisplayColumns.push(columnHeader);
+    });
+
+    return defaultDisplayColumns;
+  }
+
+  getPropertyType(propertyValue: any): string {
+    const propValueType = typeof propertyValue;
+    let outputValueType: string = '';
+
+    switch (propValueType) {
+      case 'string':
+        outputValueType = 'text';
+        break;
+      case 'number':
+        outputValueType = 'number'
+        break;
+      default:
+        outputValueType = 'text';
+    }
+
+    return outputValueType;
+  }
+
+  capitalizeFirstLetter(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
 
   buildArrayElementFormGroup(element: T) {
     let arrayElementFormGroupObj: any = {};
