@@ -1,0 +1,40 @@
+<form [formGroup]="parentFormGroup">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" formArrayName="parentFormFormArray" multiTemplateDataRows>
+        <ng-container matColumnDef="{{displayCol.name}}" *ngFor="let displayCol of displayColumns">
+            <th mat-header-cell *matHeaderCellDef>{{displayCol.displayName}}</th>
+            <td mat-cell *matCellDef="let element; let rowIndex = dataIndex" [formGroupName]="rowIndex">
+                <mat-form-field floatLabel="never">
+                <input matInput placeholder="{{displayCol.displayName}}" [formControlName]="displayCol.name">
+                </mat-form-field>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="{{expandedDetailFormControlName}}">
+            <td mat-cell *matCellDef="let rowElement; let rowIndex = dataIndex" [formGroupName]="rowIndex" [attr.colspan]="displayColumns.length">
+                <div
+                class="element-detail"
+                *ngIf="rowElement[expandedDetailFormControlName]?.length"
+                [@detailExpand]="rowElement == expandedElement ? 'expanded' : 'collapsed'">
+                    <div
+                    class="inner-table mat-elevation-z8"
+                    *ngIf="expandedElement">
+                        <app-row-details formControlName="{{expandedDetailFormControlName}}"></app-row-details>
+                    </div>
+                </div>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columnsProps"></tr>
+        <tr
+            mat-row
+            *matRowDef="let rowElement; columns: columnsProps;"
+            [class.element-row]="rowElement[expandedDetailFormControlName]?.length"
+            [class.expanded-row]="expandedElement === rowElement"
+            (click)="toggleRow(rowElement)">
+        </tr>
+        <tr mat-row *matRowDef="let row; columns: [expandedDetailFormControlName]" class="detail-row" ></tr>
+    </table>
+</form>
+<!-- <p>
+    {{parentFormGroup.value | json}}
+</p> -->

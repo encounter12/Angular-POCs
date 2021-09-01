@@ -4,5 +4,5 @@ export class PeriodicElement {
     public name: string | undefined;
     public position: number | undefined;
     public weight: number | undefined;
-    public elements: Isotope[] = []; 
+    public isotopes: Isotope[] = []; 
 }

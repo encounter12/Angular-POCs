@@ -10,11 +10,13 @@ import { MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { RowDetailsComponent } from './row-details/row-details/row-details.component';
+import { ParentRowComponent } from './parent-row/parent-row.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    RowDetailsComponent
+    RowDetailsComponent,
+    ParentRowComponent
   ],
   imports: [
     BrowserModule,

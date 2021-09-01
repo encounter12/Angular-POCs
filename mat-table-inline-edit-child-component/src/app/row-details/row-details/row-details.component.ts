@@ -1,4 +1,4 @@
-import { Component, forwardRef, OnDestroy } from '@angular/core';
+import { Component, forwardRef, OnInit, OnDestroy } from '@angular/core';
 import {
   FormGroup,
 	FormBuilder,
@@ -7,7 +7,8 @@ import {
 	Validator,
 	NG_VALIDATORS,
 	AbstractControl,
-	ValidationErrors
+	ValidationErrors,
+  FormArray
 } from '@angular/forms';
 
 import { Subscription } from 'rxjs';
@@ -29,7 +30,7 @@ import { Subscription } from 'rxjs';
 		}
 	]
 })
-export class RowDetailsComponent<T> implements OnDestroy, ControlValueAccessor, Validator {
+export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAccessor, Validator {
   public innerDisplayColumns: string[] = [];
   public subrowDataSource: T[] = [];
 
@@ -47,33 +48,40 @@ export class RowDetailsComponent<T> implements OnDestroy, ControlValueAccessor, 
   constructor(private formBuilder: FormBuilder) {
   }
 
+  ngOnInit() {
+    let gosho = 1;
+  }
+
   ngOnDestroy() {
     if (this.onChangeSubscription) {
       this.onChangeSubscription.unsubscribe();
     }
   }
 
-  getInnerDisplayColumns(): string[] {
-    const arrayFirstElement = this.subrowGroup.get('subrowArray')?.value[0];
+  getInnerDisplayColumns(arr: any[]): string[] {
+    const arrayFirstElement = arr[0];
     return Object.keys(arrayFirstElement);
   }
 
-	writeValue(val: T[]): void {
+	writeValue(val: any): void {
     if (!val) {
       return;
     }
 
+    const arrayKey: any = Object.keys(val).find(key => (val[key]).constructor === Array);
+    const arr = val[arrayKey];
+
     const subrowArray = this.formBuilder.array(
-      val.map((x: T) => { 
+      arr.map((x: T) => { 
         return this.buildArrayElementFormGroup(x); 
       })
     );
 
     this.subrowGroup.setControl('subrowArray', subrowArray, { emitEvent: false });
     
-    this.innerDisplayColumns = this.getInnerDisplayColumns();
+    this.innerDisplayColumns = this.getInnerDisplayColumns(arr);
 
-    this.subrowDataSource = this.subrowGroup.get('subrowArray')?.value;
+    this.subrowDataSource = arr;
 	}
 
   buildArrayElementFormGroup(element: T) {
