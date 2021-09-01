@@ -85,6 +85,12 @@ export class ParentRowComponent<T> implements OnInit {
 
   addRow(rowElement: T) {
 
+    const arrayElementFormObject = this.buildArrayElementFormObject(rowElement);
+    const arrayElementFormGroup = this.formBuilder.group(arrayElementFormObject);
+    this.parentFormFormArray.push(arrayElementFormGroup);
+  }
+
+  buildArrayElementFormObject(rowElement: T): any {
     const arrayElementFormObj: any = {};
 
     Object.keys(rowElement).forEach((key: string) => {
@@ -98,9 +104,7 @@ export class ParentRowComponent<T> implements OnInit {
       }
     });
 
-    const arrayElementFormGroup = this.formBuilder.group(arrayElementFormObj);
-
-    this.parentFormFormArray.push(arrayElementFormGroup);
+    return arrayElementFormObj;
   }
 
   toggleRow(rowElement: T) {
