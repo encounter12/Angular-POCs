@@ -13,6 +13,7 @@ import {
 
 import { Subscription } from 'rxjs';
 import { ColumnHeader } from 'src/app/models/column-header';
+import { DataGridHelperService } from '../../helpers/datagrid-helper-service';
 
 @Component({
   selector: 'app-row-details',
@@ -50,7 +51,7 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
     subrowArray: this.formBuilder.array([])
   })
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor(private formBuilder: FormBuilder, private dataGridHelperService: DataGridHelperService<T>) {
   }
 
   ngOnInit() {
@@ -96,53 +97,11 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
       if (firstDataSourceElement) {
         this.innerDisplayColumnsProps = Object.keys(firstDataSourceElement);
 
-        this.innerDisplayColumns = this.buildDefaultDisplayColumns(this.innerDisplayColumnsProps, firstDataSourceElement);
+        this.innerDisplayColumns = this.dataGridHelperService.buildDefaultDisplayColumns(this.innerDisplayColumnsProps, firstDataSourceElement);
       }
     } else {
       this.innerDisplayColumnsProps = this.innerDisplayColumns.map((col: ColumnHeader) => col.name);
     }
-  }
-
-  buildDefaultDisplayColumns(colNames: string[], element: T): ColumnHeader[] {
-   
-    let defaultDisplayColumns: ColumnHeader[] = [];
-
-    colNames.forEach((colName) => {
-      const columnHeader: ColumnHeader = {
-        name: colName,
-        displayName: this.capitalizeFirstLetter(colName),
-        isVisible: true,
-        isEditable: false,
-        validators: [],
-        propertyType: this.getPropertyType((element as any)[colName])
-      };
-
-      defaultDisplayColumns.push(columnHeader);
-    });
-
-    return defaultDisplayColumns;
-  }
-
-  getPropertyType(propertyValue: any): string {
-    const propValueType = typeof propertyValue;
-    let outputValueType: string = '';
-
-    switch (propValueType) {
-      case 'string':
-        outputValueType = 'text';
-        break;
-      case 'number':
-        outputValueType = 'number'
-        break;
-      default:
-        outputValueType = 'text';
-    }
-
-    return outputValueType;
-  }
-
-  capitalizeFirstLetter(str: string) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
   buildArrayElementFormGroup(element: T) {

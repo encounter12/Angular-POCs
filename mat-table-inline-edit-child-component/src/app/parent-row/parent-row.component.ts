@@ -5,6 +5,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { ColumnHeader } from '../models/column-header';
+import { DataGridHelperService } from '../helpers/datagrid-helper-service'
 
 @Component({
   selector: 'app-parent-row',
@@ -45,7 +46,10 @@ export class ParentRowComponent<T> implements OnInit {
 
   isFormEditable = false;
 
-  constructor(private formBuilder: FormBuilder, private changeDetectorRef: ChangeDetectorRef) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private changeDetectorRef: ChangeDetectorRef,
+    private dataGridHelperService: DataGridHelperService<T>) {
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -136,7 +140,7 @@ export class ParentRowComponent<T> implements OnInit {
           this.columnsProps.unshift('select');
         }
 
-        this.displayColumns = this.buildDefaultDisplayColumns(this.columnsProps, firstDataSourceElement);
+        this.displayColumns = this.dataGridHelperService.buildDefaultDisplayColumns(this.columnsProps, firstDataSourceElement);
 
       }
     } else {
@@ -151,48 +155,7 @@ export class ParentRowComponent<T> implements OnInit {
       this.innerDisplayColumns.some(x => x.isEditable);
   }
 
-  buildDefaultDisplayColumns(colNames: string[], element: T): ColumnHeader[] {
-   
-    let defaultDisplayColumns: ColumnHeader[] = [];
-
-    colNames.forEach((colName) => {
-      const columnHeader: ColumnHeader = {
-        name: colName,
-        displayName: this.capitalizeFirstLetter(colName),
-        isVisible: true,
-        isEditable: false,
-        validators: [],
-        propertyType: this.getPropertyType((element as any)[colName])
-      };
-
-      defaultDisplayColumns.push(columnHeader);
-    });
-
-    return defaultDisplayColumns;
-  }
-
-  getPropertyType(propertyValue: any): string {
-    const propValueType = typeof propertyValue;
-    let outputValueType: string = '';
-
-    switch (propValueType) {
-      case 'string':
-        outputValueType = 'text';
-        break;
-      case 'number':
-        outputValueType = 'number'
-        break;
-      default:
-        outputValueType = 'text';
-    }
-
-    return outputValueType;
-  }
-
-  capitalizeFirstLetter(str: string) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
+  
   addRow(rowElement: T) {
     const arrayElementFormObject = this.buildArrayElementFormObject(rowElement);
     const arrayElementFormGroup = this.formBuilder.group(arrayElementFormObject);
