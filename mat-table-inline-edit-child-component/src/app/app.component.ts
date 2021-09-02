@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Observable, of } from 'rxjs';
+
 import { PeriodicElement } from './interfaces/periodic-element';
 
 import { ELEMENT_DATA, PERIODIC_ELEMENTS_COLUMNS_DATA, PERIODIC_ELEMENTS_INNER_COLUMNS_DATA } from './parent-row/data';
@@ -11,6 +13,8 @@ import { ELEMENT_DATA, PERIODIC_ELEMENTS_COLUMNS_DATA, PERIODIC_ELEMENTS_INNER_C
 export class AppComponent {
 
   dataSource: PeriodicElement[] = ELEMENT_DATA;
+  dataSourceObservable: Observable<PeriodicElement[]> = of(ELEMENT_DATA);
+
   updatedForm: any[] = [];
   selectedRows: any[] = [];
   submittedElements: any[] = [];

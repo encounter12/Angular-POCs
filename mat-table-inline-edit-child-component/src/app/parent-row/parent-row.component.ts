@@ -4,6 +4,10 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatTableDataSource } from '@angular/material/table';
 
+import { Observable } from 'rxjs';
+import { isObservable } from "rxjs";
+import { tap } from 'rxjs/operators';
+
 import { ColumnHeader } from '../models/column-header';
 import { DataGridHelperService } from '../helpers/datagrid-helper-service'
 
@@ -22,7 +26,8 @@ import { DataGridHelperService } from '../helpers/datagrid-helper-service'
 export class ParentRowComponent<T> implements OnInit {
   @Input() displayColumns: ColumnHeader[] = [];
   @Input() innerDisplayColumns: ColumnHeader[] = [];
-  @Input() dataSource: T[] = [];
+
+  @Input() dataSource: Observable<T[]> | T[] = [];
   @Input() rowSelection: boolean = false;
 
   matTableDataSource: MatTableDataSource<T> = new MatTableDataSource<T>([]);
@@ -52,59 +57,18 @@ export class ParentRowComponent<T> implements OnInit {
     private dataGridHelperService: DataGridHelperService<T>) {
   }
 
-  /** Whether the number of selected elements matches the total number of rows. */
-  isAllSelected() {
-    const numSelected = this.selection.selected.length;
-    const numRows = this.matTableDataSource.data.length;
-    return numSelected === numRows;
-  }
-
-  /** Selects all rows if they are not all selected; otherwise clear selection. */
-  masterToggle() {
-    if (this.isAllSelected()) {
-      this.selectedFormArrayElementIndices = [];
-      this.selection.clear();
-      return;
-    }
-
-    this.selectedFormArrayElementIndices = this.range(this.parentFormFormArray.length, 0);
-    this.selection.select(...this.matTableDataSource.data);
-  }
-
-  justToggle(row: any, rowIndex: number) {
-    const isSelected = this.selection.isSelected(row);
-    if (!isSelected && !this.selectedFormArrayElementIndices.some(x => x === rowIndex)) {
-      this.selectedFormArrayElementIndices.push(rowIndex);
-    } else if (isSelected && this.selectedFormArrayElementIndices.some(x => x === rowIndex)) {
-      this.selectedFormArrayElementIndices = this.selectedFormArrayElementIndices.filter(e => e !== rowIndex);
-    }
-
-    this.selection.toggle(row);
-  }
-
-  range(size:number, startAt:number = 0): Array<number> {
-    return [...Array(size).keys()].map(i => i + startAt);
-  }
-
-  updateFormArrayElementsOnRowSelectionChange() {
-    this.selectedFormArrayElements = [];
-
-    this.selectedFormArrayElementIndices.forEach((val) => {
-      const element = this.parentFormFormArray.at(val).value;
-      this.selectedFormArrayElements.push(element);
-    });
-  }
-
-  /** The label for the checkbox on the passed row */
-  checkboxLabel(row?: T, rowIndex?: number): string {
-    if (!row) {
-      return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
-    }
-    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${rowIndex ?? 0 + 1}`;
-  }
-
   ngOnInit() {
-    this.matTableDataSource = new MatTableDataSource<T>(this.dataSource);
+    if (isObservable(this.dataSource)) {
+      this.getDataSource().subscribe((data: T[]) => {
+        this.initializeMatTable(data);
+      });
+    } else {
+      this.initializeMatTable(this.dataSource);
+    }
+  }
+
+  initializeMatTable(data: T[]) {
+    this.matTableDataSource = new MatTableDataSource<T>(data);
     this.matTableDataSource.data.forEach((pe) => this.addRow(pe));
 
     const firstDataSourceElement = this.matTableDataSource.data[0];
@@ -132,17 +96,17 @@ export class ParentRowComponent<T> implements OnInit {
 
     if (this.displayColumns.length === 0) {
 
-      if (firstDataSourceElement) {
-        this.columnsProps = Object.keys(firstDataSourceElement)
-          .filter((key: string) => (firstDataSourceElement as any)[key].constructor !== Array);
+    if (firstDataSourceElement) {
+      this.columnsProps = Object.keys(firstDataSourceElement)
+        .filter((key: string) => (firstDataSourceElement as any)[key].constructor !== Array);
 
-        if (this.rowSelection) {
-          this.columnsProps.unshift('select');
-        }
-
-        this.displayColumns = this.dataGridHelperService.buildDefaultDisplayColumns(this.columnsProps, firstDataSourceElement);
-
+      if (this.rowSelection) {
+        this.columnsProps.unshift('select');
       }
+
+      this.displayColumns = this.dataGridHelperService.buildDefaultDisplayColumns(this.columnsProps, firstDataSourceElement);
+
+    }
     } else {
       this.columnsProps = this.displayColumns.map((col: ColumnHeader) => col.name);
 
@@ -151,11 +115,15 @@ export class ParentRowComponent<T> implements OnInit {
       }
     }
 
-    this.isFormEditable = this.displayColumns.some(x => x.isEditable) ||
-      this.innerDisplayColumns.some(x => x.isEditable);
+    this.isFormEditable = this.displayColumns.some(x => x.isEditable) || this.innerDisplayColumns.some(x => x.isEditable);
   }
 
-  
+  getDataSource(): Observable<T[]> {
+    return (<Observable<T[]>>this.dataSource).pipe(
+        tap(res => res)
+    );
+  }
+
   addRow(rowElement: T) {
     const arrayElementFormObject = this.buildArrayElementFormObject(rowElement);
     const arrayElementFormGroup = this.formBuilder.group(arrayElementFormObject);
@@ -179,7 +147,54 @@ export class ParentRowComponent<T> implements OnInit {
     return arrayElementFormObj;
   }
 
-  toggleRow(rowElement: T) {
+  /** Whether the number of selected elements matches the total number of rows. */
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.matTableDataSource.data.length;
+    return numSelected === numRows;
+  }
+
+  /** Selects all rows if they are not all selected; otherwise clear selection. */
+  masterToggleRowSelection() {
+    if (this.isAllSelected()) {
+      this.selectedFormArrayElementIndices = [];
+      this.selection.clear();
+      return;
+    }
+
+    this.selectedFormArrayElementIndices = this.dataGridHelperService.range(this.parentFormFormArray.length, 0);
+    this.selection.select(...this.matTableDataSource.data);
+  }
+
+  toggleRowSelection(row: any, rowIndex: number) {
+    const isSelected = this.selection.isSelected(row);
+    if (!isSelected && !this.selectedFormArrayElementIndices.some(x => x === rowIndex)) {
+      this.selectedFormArrayElementIndices.push(rowIndex);
+    } else if (isSelected && this.selectedFormArrayElementIndices.some(x => x === rowIndex)) {
+      this.selectedFormArrayElementIndices = this.selectedFormArrayElementIndices.filter(e => e !== rowIndex);
+    }
+
+    this.selection.toggle(row);
+  }
+
+  updateFormArrayElementsOnRowSelectionChange() {
+    this.selectedFormArrayElements = [];
+
+    this.selectedFormArrayElementIndices.forEach((val) => {
+      const element = this.parentFormFormArray.at(val).value;
+      this.selectedFormArrayElements.push(element);
+    });
+  }
+
+  /** The label for the checkbox on the passed row */
+  checkboxLabel(row?: T, rowIndex?: number): string {
+    if (!row) {
+      return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
+    }
+    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${rowIndex ?? 0 + 1}`;
+  }
+
+  toggleExpandRow(rowElement: T) {
     (rowElement as any)[this.expandedDetailFormControlName] && (rowElement as any)[this.expandedDetailFormControlName].length ?
       (this.expandedElement = this.expandedElement === rowElement ? null : rowElement) : null;
 

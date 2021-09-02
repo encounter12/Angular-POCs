@@ -8,7 +8,7 @@ import { ColumnHeader } from "../models/column-header";
 export class DataGridHelperService<T> {
     constructor() {}
 
-    buildDefaultDisplayColumns(colNames: string[], element: T): ColumnHeader[] {
+    public buildDefaultDisplayColumns(colNames: string[], element: T): ColumnHeader[] {
         let defaultDisplayColumns: ColumnHeader[] = [];
 
         colNames.forEach((colName) => {
@@ -47,5 +47,9 @@ export class DataGridHelperService<T> {
 
     private capitalizeFirstLetter(str: string) {
         return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    public range(size:number, startAt:number = 0): Array<number> {
+        return [...Array(size).keys()].map(i => i + startAt);
     }
 }

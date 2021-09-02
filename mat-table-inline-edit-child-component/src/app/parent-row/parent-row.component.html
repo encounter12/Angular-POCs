@@ -9,7 +9,7 @@
         <ng-container matColumnDef="select" *ngIf="rowSelection">
             <th mat-header-cell *matHeaderCellDef>
                 <mat-checkbox
-                    (change)="$event ? masterToggle() : null"
+                    (change)="$event ? masterToggleRowSelection() : null"
                     [checked]="selection.hasValue() && isAllSelected()"
                     [indeterminate]="selection.hasValue() && !isAllSelected()"
                     [aria-label]="checkboxLabel()">
@@ -18,7 +18,7 @@
             <td mat-cell *matCellDef="let row; let rowIndex = dataIndex">
                 <mat-checkbox
                     (click)="$event.stopPropagation()"
-                    (change)="$event ? justToggle(row, rowIndex) : null"
+                    (change)="$event ? toggleRowSelection(row, rowIndex) : null"
                     [checked]="selection.isSelected(row)"
                     [aria-label]="checkboxLabel(row, rowIndex)">
                 </mat-checkbox>
@@ -68,7 +68,7 @@
             *matRowDef="let rowElement; columns: columnsProps;"
             [class.element-row]="rowElement[expandedDetailFormControlName]?.length"
             [class.expanded-row]="expandedElement === rowElement"
-            (click)="toggleRow(rowElement)">
+            (click)="toggleExpandRow(rowElement)">
         </tr>
         <tr mat-row *matRowDef="let row; columns: [expandedDetailFormControlName]" class="detail-row" ></tr>
     </table>
