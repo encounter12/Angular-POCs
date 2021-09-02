@@ -1,9 +1,13 @@
 import { Component } from '@angular/core';
 import { Observable, of } from 'rxjs';
 
-import { PeriodicElement } from './interfaces/periodic-element';
+import { PeriodicElement } from './periodic-elements/models/periodic-element';
 
-import { ELEMENT_DATA, PERIODIC_ELEMENTS_COLUMNS_DATA, PERIODIC_ELEMENTS_INNER_COLUMNS_DATA } from './parent-row/data';
+import {
+  ELEMENT_DATA,
+  PERIODIC_ELEMENTS_COLUMNS_DATA,
+  PERIODIC_ELEMENTS_INNER_COLUMNS_DATA 
+} from './periodic-elements/data';
 
 @Component({
   selector: 'app-root',

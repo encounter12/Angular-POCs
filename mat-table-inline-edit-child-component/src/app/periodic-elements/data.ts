@@ -1,5 +1,5 @@
-import { PeriodicElement } from '../interfaces/periodic-element';
-import { ColumnHeader } from '../models/column-header';
+import { PeriodicElement } from './models/periodic-element';
+import { ColumnHeader } from '../data-grid/models/column-header';
 
 export const PERIODIC_ELEMENTS_COLUMNS_DATA: ColumnHeader[] = [
     {

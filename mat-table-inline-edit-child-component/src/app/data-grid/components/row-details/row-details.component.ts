@@ -7,12 +7,11 @@ import {
 	Validator,
 	NG_VALIDATORS,
 	AbstractControl,
-	ValidationErrors,
-  FormArray
+	ValidationErrors
 } from '@angular/forms';
 
 import { Subscription } from 'rxjs';
-import { ColumnHeader } from 'src/app/models/column-header';
+import { ColumnHeader } from '../../models/column-header';
 import { DataGridHelperService } from '../../helpers/datagrid-helper-service';
 
 @Component({

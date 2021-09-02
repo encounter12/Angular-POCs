@@ -8,13 +8,13 @@ import { Observable } from 'rxjs';
 import { isObservable } from "rxjs";
 import { tap } from 'rxjs/operators';
 
-import { ColumnHeader } from '../models/column-header';
-import { DataGridHelperService } from '../helpers/datagrid-helper-service'
+import { ColumnHeader } from '../../models/column-header';
+import { DataGridHelperService } from '../../helpers/datagrid-helper-service'
 
 @Component({
-  selector: 'app-parent-row',
-  templateUrl: './parent-row.component.html',
-  styleUrls: ['./parent-row.component.css'],
+  selector: 'data-grid',
+  templateUrl: './data-grid.component.html',
+  styleUrls: ['./data-grid.component.css'],
   animations: [
     trigger('detailExpand', [
       state('collapsed', style({ height: '0px', minHeight: '0' })),
@@ -23,7 +23,7 @@ import { DataGridHelperService } from '../helpers/datagrid-helper-service'
     ]),
   ]
 })
-export class ParentRowComponent<T> implements OnInit {
+export class DataGridComponent<T> implements OnInit {
   @Input() displayColumns: ColumnHeader[] = [];
   @Input() innerDisplayColumns: ColumnHeader[] = [];
 

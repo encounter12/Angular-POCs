@@ -1,4 +1,4 @@
-<app-parent-row
+<data-grid
   [dataSource]="dataSource"
   [displayColumns]="periodicElementsColDefinition"
   [innerDisplayColumns]="innerDisplayColumns"
@@ -6,7 +6,7 @@
   (onFormUpdate)="printUpdatedForm($event)"
   (onSelectRow)="onSelectRow($event)"
   (onSubmit)="onSubmit($event)">
-</app-parent-row>
+</data-grid>
 <p>
   {{ updatedForm | json }}
 </p>
