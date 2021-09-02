@@ -12,6 +12,8 @@ export class AppComponent {
 
   dataSource: PeriodicElement[] = ELEMENT_DATA;
   updatedForm: any[] = [];
+  selectedRows: any[] = [];
+  submittedElements: any[] = [];
 
   periodicElementsColDefinition = PERIODIC_ELEMENTS_COLUMNS_DATA;
   innerDisplayColumns = PERIODIC_ELEMENTS_INNER_COLUMNS_DATA;
@@ -20,5 +22,13 @@ export class AppComponent {
 
   printUpdatedForm(updatedForm: any[]) {
     this.updatedForm = updatedForm;
+  }
+
+  onSelectRow(selectedRows: any[]) {
+    this.selectedRows = selectedRows;
+  }
+
+  onSubmit(submitted: any[]) {
+    this.submittedElements = submitted;
   }
 }

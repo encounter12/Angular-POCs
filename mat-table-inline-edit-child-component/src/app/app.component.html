@@ -2,8 +2,19 @@
   [dataSource]="dataSource"
   [displayColumns]="periodicElementsColDefinition"
   [innerDisplayColumns]="innerDisplayColumns"
-  (onFormUpdate)="printUpdatedForm($event)">
+  [rowSelection]="true"
+  (onFormUpdate)="printUpdatedForm($event)"
+  (onSelectRow)="onSelectRow($event)"
+  (onSubmit)="onSubmit($event)">
 </app-parent-row>
 <p>
   {{ updatedForm | json }}
 </p>
+<div>
+  <h4>Selected rows:</h4>
+  <div>{{ selectedRows | json }}</div>
+</div>
+<div>
+  <h4>Submitted elements:</h4>
+  <div>{{ submittedElements | json }}</div>
+</div>

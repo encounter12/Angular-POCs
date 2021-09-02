@@ -1,7 +1,7 @@
 <ng-container [formGroup]="subrowGroup">
   <table mat-table [dataSource]="subrowDataSource" formArrayName="subrowArray">
     <ng-container matColumnDef="{{innerColumn.name}}" *ngFor="let innerColumn of innerDisplayColumns">
-      <th mat-header-cell *matHeaderCellDef [hidden]="!innerColumn.isVisible" mat-sort-header> {{innerColumn.displayName}} </th>
+      <th mat-header-cell *matHeaderCellDef [hidden]="!innerColumn.isVisible"> {{innerColumn.displayName}} </th>
       <td mat-cell *matCellDef="let row; let rowIndex = index" [hidden]="!innerColumn.isVisible" [formGroupName]="rowIndex">
         <ng-container [ngSwitch]="innerColumn.propertyType" *ngIf="!innerColumn.isEditable">
           <ng-container *ngSwitchCase="'text'">{{row[innerColumn.name]}}</ng-container>

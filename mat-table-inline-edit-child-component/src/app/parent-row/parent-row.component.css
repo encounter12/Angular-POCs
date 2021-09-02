@@ -22,3 +22,7 @@ tr.element-row:not(.expanded-row):active {
 tr.detail-row {
     height: 0;
 }
+
+.submit-button-card-actions {
+    margin: 15px;
+}
