@@ -139,7 +139,6 @@ export class DataGridComponent<T> implements OnInit {
     const subrowArrayDisplayCol: ColumnHeader | undefined = this.displayColumns.find(dc => dc.hasSubrowArray);
 
     Object.keys(rowElement).forEach((key: string) => {
-
       const propValue = (rowElement as any)[key];
 
       const isSubrowArrayColNameValid = subrowArrayDisplayCol &&
