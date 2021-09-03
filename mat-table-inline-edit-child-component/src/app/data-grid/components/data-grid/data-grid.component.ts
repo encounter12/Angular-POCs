@@ -101,22 +101,19 @@ export class DataGridComponent<T> implements OnInit {
         this.columnsProps = Object.keys(firstDataSourceElement)
           .filter((key: string) => (firstDataSourceElement as any)[key].constructor !== Array);
 
+        this.displayColumns = this.dataGridHelperService.buildDefaultDisplayColumns(this.columnsProps, firstDataSourceElement);
+
         if (this.rowSelection) {
           this.columnsProps.unshift('select');
         }
-
-        this.displayColumns = this.dataGridHelperService.buildDefaultDisplayColumns(this.columnsProps, firstDataSourceElement);
       }
     } else {
-      this.columnsProps = this.displayColumns
-        .filter(x => !x.hasSubrowArray)
-        .map((col: ColumnHeader) => col.name);
+      this.displayColumns = this.displayColumns.filter(dc => !dc.hasSubrowArray);
+      this.columnsProps = this.displayColumns.map((col: ColumnHeader) => col.name);
 
       if (this.rowSelection) {
         this.columnsProps.unshift('select');
       }
-
-      this.displayColumns = this.displayColumns.filter(dc => !dc.hasSubrowArray);
     }
 
     this.isFormEditable = this.displayColumns.some(x => x.isEditable) || this.innerDisplayColumns.some(x => x.isEditable);

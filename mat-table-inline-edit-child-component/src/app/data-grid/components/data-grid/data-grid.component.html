@@ -56,7 +56,7 @@
                     <div
                     class="inner-table mat-elevation-z8"
                     *ngIf="expandedElement">
-                        <app-row-details
+                        <app-row-details class="row-details-component"
                             formControlName="{{expandedDetailFormControlName}}"
                             [innerDisplayColumns]="innerDisplayColumns"
                             [subrowArrayPropName]="subrowArrayPropName">
@@ -76,5 +76,5 @@
         </tr>
         <tr mat-row *matRowDef="let row; columns: [expandedDetailFormControlName]" class="detail-row" ></tr>
     </table>
-    <button *ngIf="isFormEditable" mat-raised-button type="submit" color="primary" class="submit-button-card-actions">Submit</button>
+    <button *ngIf="isFormEditable" mat-raised-button type="submit" color="primary" class="submit-button">Submit</button>
 </form>

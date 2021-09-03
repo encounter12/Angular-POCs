@@ -1,5 +1,5 @@
 table {
-    width: 100% !important;
+    width: 100%;
 }
 
 .element-detail {
@@ -23,6 +23,14 @@ tr.detail-row {
     height: 0;
 }
 
-.submit-button-card-actions {
+.submit-button {
     margin: 15px;
+}
+
+.inner-table {
+    width: 100%;
+}
+
+.row-details-component {
+    width: 100%;
 }

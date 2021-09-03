@@ -48,15 +48,12 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
   public onChanged: (subrowArray: T[]) => void = () => {
   };
 
-  public subrowGroup: FormGroup = this.formBuilder.group({ 
-    subrowArray: this.formBuilder.array([])
-  })
+  public subrowGroup: FormGroup = this.formBuilder.group({})
 
   constructor(private formBuilder: FormBuilder, private dataGridHelperService: DataGridHelperService<T>) {
   }
 
   ngOnInit() {
-    this.subrowGroup.setControl(this.subrowArrayPropName, this.formBuilder.array([]), { emitEvent: false });
   }
 
   ngOnDestroy() {
