@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef, Input, Output, EventEmitter } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatTableDataSource } from '@angular/material/table';
@@ -35,6 +35,8 @@ export class DataGridComponent<T> implements OnInit {
 
   selectedFormArrayElementIndices: number[] = [];
   selectedFormArrayElements: T[] = [];
+
+  subrowArrayPropName = 'subrowArray';
 
   @Output() onFormUpdate = new EventEmitter<any[]>();
   @Output() onSelectRow = new EventEmitter<T[]>();
@@ -95,24 +97,26 @@ export class DataGridComponent<T> implements OnInit {
     }
 
     if (this.displayColumns.length === 0) {
+      if (firstDataSourceElement) {
+        this.columnsProps = Object.keys(firstDataSourceElement)
+          .filter((key: string) => (firstDataSourceElement as any)[key].constructor !== Array);
 
-    if (firstDataSourceElement) {
-      this.columnsProps = Object.keys(firstDataSourceElement)
-        .filter((key: string) => (firstDataSourceElement as any)[key].constructor !== Array);
+        if (this.rowSelection) {
+          this.columnsProps.unshift('select');
+        }
 
-      if (this.rowSelection) {
-        this.columnsProps.unshift('select');
+        this.displayColumns = this.dataGridHelperService.buildDefaultDisplayColumns(this.columnsProps, firstDataSourceElement);
       }
-
-      this.displayColumns = this.dataGridHelperService.buildDefaultDisplayColumns(this.columnsProps, firstDataSourceElement);
-
-    }
     } else {
-      this.columnsProps = this.displayColumns.map((col: ColumnHeader) => col.name);
+      this.columnsProps = this.displayColumns
+        .filter(x => !x.hasSubrowArray)
+        .map((col: ColumnHeader) => col.name);
 
       if (this.rowSelection) {
         this.columnsProps.unshift('select');
       }
+
+      this.displayColumns = this.displayColumns.filter(dc => !dc.hasSubrowArray);
     }
 
     this.isFormEditable = this.displayColumns.some(x => x.isEditable) || this.innerDisplayColumns.some(x => x.isEditable);
@@ -133,18 +137,37 @@ export class DataGridComponent<T> implements OnInit {
   buildArrayElementFormObject(rowElement: T): any {
     const arrayElementFormObj: any = {};
 
+    let hasSetSubrowArray = false;
+
+    const subrowArrayDisplayCol: ColumnHeader | undefined = this.displayColumns.find(dc => dc.hasSubrowArray);
+
     Object.keys(rowElement).forEach((key: string) => {
 
       const propValue = (rowElement as any)[key];
 
-      if (propValue.constructor === Array) {
-        arrayElementFormObj[key] = this.formBuilder.control( { subrowArray: propValue });
+      const isSubrowArrayColNameValid = subrowArrayDisplayCol &&
+        subrowArrayDisplayCol.name &&
+        subrowArrayDisplayCol.name.length > 0;
+
+      if (isSubrowArrayColNameValid && subrowArrayDisplayCol?.name === key && !hasSetSubrowArray) {
+          arrayElementFormObj[key] = this.buildFormControlArrayObject(key, propValue);
+          this.subrowArrayPropName = key;
+          hasSetSubrowArray = true;
+      } else if (propValue.constructor === Array && !hasSetSubrowArray) {
+          arrayElementFormObj[key] = this.buildFormControlArrayObject(key, propValue);
+          hasSetSubrowArray = true;
       } else {
         arrayElementFormObj[key] = this.formBuilder.control(propValue);
       }
     });
 
     return arrayElementFormObj;
+  }
+
+  private buildFormControlArrayObject(key: string, propValue: any): FormControl {
+    const subrowArrayObj: any = {};
+    subrowArrayObj[key] = propValue;
+    return this.formBuilder.control(subrowArrayObj);
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
@@ -168,6 +191,7 @@ export class DataGridComponent<T> implements OnInit {
 
   toggleRowSelection(row: any, rowIndex: number) {
     const isSelected = this.selection.isSelected(row);
+
     if (!isSelected && !this.selectedFormArrayElementIndices.some(x => x === rowIndex)) {
       this.selectedFormArrayElementIndices.push(rowIndex);
     } else if (isSelected && this.selectedFormArrayElementIndices.some(x => x === rowIndex)) {

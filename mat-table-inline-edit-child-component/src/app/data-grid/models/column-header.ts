@@ -10,4 +10,6 @@ export class ColumnHeader {
     public validators: string[] = [];
 
     public propertyType: string = '';
+
+    public hasSubrowArray?: boolean = false;
 }

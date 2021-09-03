@@ -56,7 +56,11 @@
                     <div
                     class="inner-table mat-elevation-z8"
                     *ngIf="expandedElement">
-                        <app-row-details formControlName="{{expandedDetailFormControlName}}" [innerDisplayColumns]="innerDisplayColumns"></app-row-details>
+                        <app-row-details
+                            formControlName="{{expandedDetailFormControlName}}"
+                            [innerDisplayColumns]="innerDisplayColumns"
+                            [subrowArrayPropName]="subrowArrayPropName">
+                        </app-row-details>
                     </div>
                 </div>
             </td>

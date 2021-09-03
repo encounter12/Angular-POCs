@@ -2,57 +2,66 @@ import { PeriodicElement } from './models/periodic-element';
 import { ColumnHeader } from '../data-grid/models/column-header';
 
 export const PERIODIC_ELEMENTS_COLUMNS_DATA: ColumnHeader[] = [
-    {
-        name: 'position',
-        displayName: 'Position',
-        isEditable: false,
-        isVisible: true,
-        validators: [],
-        propertyType: 'number'
-    },
-    {
-        name: 'name',
-        displayName: 'Name',
-        isEditable: true,
-        isVisible: true,
-        validators: [],
-        propertyType: 'text'
-    },
-    {
-        name: 'weight',
-        displayName: 'Weight',
-        isEditable: true,
-        isVisible: true,
-        validators: [],
-        propertyType: 'number'
-    }
+  {
+      name: 'position',
+      displayName: 'Position',
+      isEditable: false,
+      isVisible: true,
+      validators: [],
+      propertyType: 'number'
+  },
+  {
+      name: 'name',
+      displayName: 'Name',
+      isEditable: true,
+      isVisible: true,
+      validators: [],
+      propertyType: 'text'
+  },
+  {
+      name: 'weight',
+      displayName: 'Weight',
+      isEditable: true,
+      isVisible: true,
+      validators: [],
+      propertyType: 'number'
+  },
+  {
+    name: 'isotopes',
+    displayName: '',
+    isEditable: false,
+    isVisible: false,
+    validators: [],
+    propertyType: 'array',
+    hasSubrowArray: true
+  }
 ];
 
 export const PERIODIC_ELEMENTS_INNER_COLUMNS_DATA: ColumnHeader[] = [
-    {
-        name: 'name',
-        displayName: 'Name',
-        isEditable: true,
-        isVisible: true,
-        validators: [],
-        propertyType: 'text'
-    },
-    {
-        name: 'protons',
-        displayName: 'Protons',
-        isEditable: true,
-        isVisible: true,
-        validators: [],
-        propertyType: 'number'
-    },
-    {
-        name: 'neutrons',
-        displayName: 'Neutrons',
-        isEditable: true,
-        isVisible: true,
-        validators: [],
-        propertyType: 'number'
-    }
+  {
+      name: 'name',
+      displayName: 'Name',
+      isEditable: true,
+      isVisible: true,
+      validators: [],
+      propertyType: 'text'
+  },
+  {
+      name: 'protons',
+      displayName: 'Protons',
+      isEditable: true,
+      isVisible: true,
+      validators: [],
+      propertyType: 'number'
+  },
+  {
+      name: 'neutrons',
+      displayName: 'Neutrons',
+      isEditable: true,
+      isVisible: true,
+      validators: [],
+      propertyType: 'number'
+  }
 ];
 
 export const ELEMENT_DATA: PeriodicElement[] = [

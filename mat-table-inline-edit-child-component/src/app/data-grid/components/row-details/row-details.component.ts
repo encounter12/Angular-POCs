@@ -34,6 +34,8 @@ import { DataGridHelperService } from '../../helpers/datagrid-helper-service';
 export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAccessor, Validator {
   
   @Input() innerDisplayColumns: ColumnHeader[] = [];
+
+  @Input() subrowArrayPropName: string = '';
   
   public innerDisplayColumnsProps: string[] = [];
 
@@ -54,6 +56,7 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
   }
 
   ngOnInit() {
+    this.subrowGroup.setControl(this.subrowArrayPropName, this.formBuilder.array([]), { emitEvent: false });
   }
 
   ngOnDestroy() {
@@ -81,7 +84,7 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
       })
     );
 
-    this.subrowGroup.setControl('subrowArray', subrowArray, { emitEvent: false });
+    this.subrowGroup.setControl(this.subrowArrayPropName, subrowArray, { emitEvent: false });
     
     this.buildDisplayColumns(arr);
 

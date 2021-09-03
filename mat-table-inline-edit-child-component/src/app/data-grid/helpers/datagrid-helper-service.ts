@@ -13,12 +13,12 @@ export class DataGridHelperService<T> {
 
         colNames.forEach((colName) => {
             const columnHeader: ColumnHeader = {
-            name: colName,
-            displayName: this.capitalizeFirstLetter(colName),
-            isVisible: true,
-            isEditable: false,
-            validators: [],
-            propertyType: this.getPropertyType((element as any)[colName])
+                name: colName,
+                displayName: this.formatDisplayName(colName),
+                isVisible: true,
+                isEditable: false,
+                validators: [],
+                propertyType: this.getPropertyType((element as any)[colName])
             };
 
             defaultDisplayColumns.push(columnHeader);
@@ -43,6 +43,11 @@ export class DataGridHelperService<T> {
         }
 
         return outputValueType;
+    }
+
+    private formatDisplayName(displayName: string): string {
+        let result = displayName.trim();
+        return this.capitalizeFirstLetter(result);
     }
 
     private capitalizeFirstLetter(str: string) {
