@@ -32,6 +32,7 @@ export class DataGridComponent<T> implements OnInit {
   @Input() rowSelection: boolean = false;
 
   @Input() selectColumnMappingModels: SelectColumnMappingModel[] = [];
+  @Input() selectInnerColumnMappingModels: SelectColumnMappingModel[] = [];
 
   matTableDataSource: MatTableDataSource<T> = new MatTableDataSource<T>([]);
   selection = new SelectionModel<T>(true, []);

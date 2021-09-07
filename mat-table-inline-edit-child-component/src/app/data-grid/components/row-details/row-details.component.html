@@ -6,6 +6,9 @@
         <ng-container [ngSwitch]="innerColumn.propertyType" *ngIf="!innerColumn.isEditable">
           <ng-container *ngSwitchCase="'text'">{{row[innerColumn.name]}}</ng-container>
           <ng-container *ngSwitchCase="'number'">{{row[innerColumn.name]}}</ng-container>
+          <ng-container *ngSwitchCase="'select'">
+              {{ getSelectedDisplayValue(row[innerColumn.name], innerColumn.name) }}
+          </ng-container>
         </ng-container>
         <ng-container [ngSwitch]="innerColumn.propertyType" *ngIf="innerColumn.isEditable">
           <mat-form-field floatLabel="never" *ngSwitchCase="'text'">
@@ -21,6 +24,16 @@
               <input matInput [matDatepicker]="picker" [formControlName]="innerColumn.name">
               <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
               <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field *ngSwitchCase="'select'">
+            <mat-select
+                [formControlName]="innerColumn.name"
+                placeholder="Select from values"
+                (click)="$event.stopPropagation()">
+                    <mat-option *ngFor="let option of getOptionsForColumn(innerColumn.name)" [value]="option.key">
+                      {{ option.displayValue }}
+                    </mat-option>
+            </mat-select>
           </mat-form-field>
         </ng-container>
       </td>

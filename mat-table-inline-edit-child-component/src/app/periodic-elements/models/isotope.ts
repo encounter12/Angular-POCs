@@ -3,4 +3,5 @@ export interface Isotope {
   protons: number | null;
   neutrons: number | null;
   discoveredOn: Date | undefined;
+  classificationId: number | undefined;
 }

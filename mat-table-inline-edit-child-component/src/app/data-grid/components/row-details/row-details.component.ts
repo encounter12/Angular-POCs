@@ -13,6 +13,7 @@ import {
 import { Subscription } from 'rxjs';
 import { ColumnHeader } from '../../models/column-header';
 import { DataGridHelperService } from '../../helpers/datagrid-helper-service';
+import { SelectOption, SelectColumnMappingModel } from '../../models/select-models';
 
 @Component({
   selector: 'app-row-details',
@@ -36,6 +37,8 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
   @Input() innerDisplayColumns: ColumnHeader[] = [];
 
   @Input() subrowArrayPropName: string = '';
+
+  @Input() selectInnerColumnMappingModels: SelectColumnMappingModel[] = [];
   
   public innerDisplayColumnsProps: string[] = [];
 
@@ -65,6 +68,17 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
   getInnerDisplayColumns(arr: any[]): string[] {
     const arrayFirstElement = arr[0];
     return Object.keys(arrayFirstElement);
+  }
+
+  getOptionsForColumn(columnName: string): SelectOption[] {
+    return this.selectInnerColumnMappingModels.find(scmm => scmm.columnName === columnName)
+      ?.selectOptions
+      .sort((a, b) => a.displayOrder - b.displayOrder) ?? [];
+  }
+
+  getSelectedDisplayValue(key: number | string | undefined, columnName: string): string | undefined {
+    const colOptions = this.getOptionsForColumn(columnName);
+    return colOptions.find(co => co.key === key)?.displayValue;
   }
 
 	writeValue(val: any): void {

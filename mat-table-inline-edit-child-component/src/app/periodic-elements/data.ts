@@ -122,8 +122,34 @@ export const PERIODIC_ELEMENTS_INNER_COLUMNS_DATA: ColumnHeader[] = [
     isVisible: true,
     validators: [],
     propertyType: 'date'
+  },
+  {
+    name: 'classificationId',
+    displayName: 'Classification',
+    isEditable: true,
+    isVisible: true,
+    validators: [],
+    propertyType: 'select'
   }
 ];
+
+export const PERIODIC_ELEMENTS_INNER_SELECT_MODELS: SelectColumnMappingModel[] = [
+  {
+    columnName: 'classificationId',
+    selectOptions: [
+      {
+        key: 1,
+        displayValue: 'stable',
+        displayOrder: 1
+      },
+      {
+        key: 2,
+        displayValue: 'radioactive',
+        displayOrder: 2
+      }
+    ]
+  }
+]
 
 export const ELEMENT_DATA: PeriodicElement[] = [
   {
@@ -135,22 +161,25 @@ export const ELEMENT_DATA: PeriodicElement[] = [
     classificationId: 4,
     isotopes: [
     {
-     name: 'Protium',
-     protons: 1, 
-     neutrons: 0,
-     discoveredOn: new Date('2014-07-16')
+      name: 'Protium',
+      protons: 1, 
+      neutrons: 0,
+      discoveredOn: new Date('2014-07-16'),
+      classificationId: 1
     },
     {
       name: 'Deuterium',
       protons: 1, 
       neutrons: 1,
-      discoveredOn: new Date('2021-06-03')
+      discoveredOn: new Date('2021-06-03'),
+      classificationId: 1
     },
     {
       name: 'Tritium',
       protons: 1, 
       neutrons: 2,
-      discoveredOn: new Date('2021-03-15')
+      discoveredOn: new Date('2021-03-15'),
+      classificationId: 2
     }]
   },
   {
@@ -165,19 +194,22 @@ export const ELEMENT_DATA: PeriodicElement[] = [
       name: 'Helium-2 (diproton)',
       protons: 2, 
       neutrons: 0,
-      discoveredOn: new Date('2003-01-22')
+      discoveredOn: new Date('2003-01-22'),
+      classificationId: 1
     },
     {
       name: 'Helium-3',
       protons: 2, 
       neutrons: 1,
-      discoveredOn: new Date('2021-03-15')
+      discoveredOn: new Date('2021-03-15'),
+      classificationId: 2
     },
     {
       name: 'Helium-4',
       protons: 2, 
       neutrons: 2,
-      discoveredOn: new Date('2011-04-17')
+      discoveredOn: new Date('2011-04-17'),
+      classificationId: 1
     }]
   },
   {

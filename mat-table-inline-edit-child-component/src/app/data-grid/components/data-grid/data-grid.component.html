@@ -41,7 +41,10 @@
                             [formControlName]="displayCol.name"
                             [disabled]="true">
                         </mat-checkbox>
-                        <ng-container *ngSwitchCase="'select'">{{ getSelectedDisplayValue(row[displayCol.name], displayCol.name) }}</ng-container>
+                        <ng-container
+                            *ngSwitchCase="'select'">
+                            {{ getSelectedDisplayValue(row[displayCol.name], displayCol.name) }}
+                        </ng-container>
                     </ng-container>
                     <ng-container [ngSwitch]="displayCol.propertyType" *ngIf="displayCol.isEditable">
                         <mat-form-field floatLabel="never" *ngSwitchCase="'text'">
@@ -61,7 +64,7 @@
                         <mat-form-field *ngSwitchCase="'select'">
                             <mat-select
                                 [formControlName]="displayCol.name"
-                                placeholder="Select classification"
+                                placeholder="Select from values"
                                 (click)="$event.stopPropagation()">
                                     <mat-option *ngFor="let option of getOptionsForColumn(displayCol.name)" [value]="option.key">
                                     {{ option.displayValue }}
@@ -83,7 +86,8 @@
                             *ngIf="expandedElement"
                             formControlName="{{expandedDetailFormControlName}}"
                             [innerDisplayColumns]="innerDisplayColumns"
-                            [subrowArrayPropName]="subrowArrayPropName">
+                            [subrowArrayPropName]="subrowArrayPropName"
+                            [selectInnerColumnMappingModels]="selectInnerColumnMappingModels">
                         </app-row-details>
                 </div>
             </td>
