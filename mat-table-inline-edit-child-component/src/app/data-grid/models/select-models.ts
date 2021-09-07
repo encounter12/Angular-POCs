@@ -4,7 +4,7 @@ export class SelectColumnMappingModel {
 }
 
 export class SelectOption {
-    public key: number | undefined;
+    public key: number | string | undefined;
     public displayValue: string | undefined;
     public displayOrder!: number;
 }

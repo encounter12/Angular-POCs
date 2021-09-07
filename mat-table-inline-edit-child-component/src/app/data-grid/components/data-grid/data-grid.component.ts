@@ -175,7 +175,7 @@ export class DataGridComponent<T> implements OnInit {
       .sort((a, b) => a.displayOrder - b.displayOrder) ?? [];
   }
 
-  getSelectedDisplayValue(key: any, columnName: string): string | undefined {
+  getSelectedDisplayValue(key: number | string | undefined, columnName: string): string | undefined {
     const colOptions = this.getOptionsForColumn(columnName);
     return colOptions.find(co => co.key === key)?.displayValue;
   }
