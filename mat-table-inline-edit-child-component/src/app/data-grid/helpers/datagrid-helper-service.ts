@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { ColumnHeader } from "../models/column-header";
+import { SelectOption, SelectColumnMappingModel } from '../models/select-models';
 
 @Injectable({
   providedIn: 'root',
@@ -56,5 +57,19 @@ export class DataGridHelperService<T> {
 
     public range(size:number, startAt:number = 0): Array<number> {
         return [...Array(size).keys()].map(i => i + startAt);
+    }
+
+    public getOptionsForColumn(columnName: string, selectColumnMappingModels: SelectColumnMappingModel[]): SelectOption[] {
+        return selectColumnMappingModels.find(scmm => scmm.columnName === columnName)
+            ?.selectOptions
+            .sort((a, b) => a.displayOrder - b.displayOrder) ?? [];
+    }
+
+    public getSelectedDisplayValue(
+        key: number | string | undefined,
+        columnName: string,
+        selectColumnMappingModels: SelectColumnMappingModel[]): string | undefined {
+            const colOptions = this.getOptionsForColumn(columnName, selectColumnMappingModels);
+            return colOptions.find(co => co.key === key)?.displayValue;
     }
 }

@@ -7,7 +7,7 @@
           <ng-container *ngSwitchCase="'text'">{{row[innerColumn.name]}}</ng-container>
           <ng-container *ngSwitchCase="'number'">{{row[innerColumn.name]}}</ng-container>
           <ng-container *ngSwitchCase="'select'">
-              {{ getSelectedDisplayValue(row[innerColumn.name], innerColumn.name) }}
+              {{ dataGridHelperService.getSelectedDisplayValue(row[innerColumn.name], innerColumn.name, selectInnerColumnMappingModels) }}
           </ng-container>
         </ng-container>
         <ng-container [ngSwitch]="innerColumn.propertyType" *ngIf="innerColumn.isEditable">
@@ -30,7 +30,7 @@
                 [formControlName]="innerColumn.name"
                 placeholder="Select from values"
                 (click)="$event.stopPropagation()">
-                    <mat-option *ngFor="let option of getOptionsForColumn(innerColumn.name)" [value]="option.key">
+                    <mat-option *ngFor="let option of dataGridHelperService.getOptionsForColumn(innerColumn.name, selectInnerColumnMappingModels)" [value]="option.key">
                       {{ option.displayValue }}
                     </mat-option>
             </mat-select>

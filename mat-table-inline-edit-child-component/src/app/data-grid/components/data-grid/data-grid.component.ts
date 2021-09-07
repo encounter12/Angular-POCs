@@ -60,7 +60,7 @@ export class DataGridComponent<T> implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private changeDetectorRef: ChangeDetectorRef,
-    private dataGridHelperService: DataGridHelperService<T>) {
+    public dataGridHelperService: DataGridHelperService<T>) {
   }
 
   ngOnInit() {
@@ -168,17 +168,6 @@ export class DataGridComponent<T> implements OnInit {
     const subrowArrayObj: any = {};
     subrowArrayObj[key] = propValue;
     return this.formBuilder.control(subrowArrayObj);
-  }
-
-  getOptionsForColumn(columnName: string): SelectOption[] {
-    return this.selectColumnMappingModels.find(scmm => scmm.columnName === columnName)
-      ?.selectOptions
-      .sort((a, b) => a.displayOrder - b.displayOrder) ?? [];
-  }
-
-  getSelectedDisplayValue(key: number | string | undefined, columnName: string): string | undefined {
-    const colOptions = this.getOptionsForColumn(columnName);
-    return colOptions.find(co => co.key === key)?.displayValue;
   }
 
   /** Whether the number of selected elements matches the total number of rows. */

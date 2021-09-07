@@ -53,7 +53,7 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
 
   public subrowGroup: FormGroup = this.formBuilder.group({})
 
-  constructor(private formBuilder: FormBuilder, private dataGridHelperService: DataGridHelperService<T>) {
+  constructor(private formBuilder: FormBuilder, public dataGridHelperService: DataGridHelperService<T>) {
   }
 
   ngOnInit() {
@@ -68,17 +68,6 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
   getInnerDisplayColumns(arr: any[]): string[] {
     const arrayFirstElement = arr[0];
     return Object.keys(arrayFirstElement);
-  }
-
-  getOptionsForColumn(columnName: string): SelectOption[] {
-    return this.selectInnerColumnMappingModels.find(scmm => scmm.columnName === columnName)
-      ?.selectOptions
-      .sort((a, b) => a.displayOrder - b.displayOrder) ?? [];
-  }
-
-  getSelectedDisplayValue(key: number | string | undefined, columnName: string): string | undefined {
-    const colOptions = this.getOptionsForColumn(columnName);
-    return colOptions.find(co => co.key === key)?.displayValue;
   }
 
 	writeValue(val: any): void {

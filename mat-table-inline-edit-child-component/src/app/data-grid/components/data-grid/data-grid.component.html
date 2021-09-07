@@ -43,7 +43,7 @@
                         </mat-checkbox>
                         <ng-container
                             *ngSwitchCase="'select'">
-                            {{ getSelectedDisplayValue(row[displayCol.name], displayCol.name) }}
+                            {{ dataGridHelperService.getSelectedDisplayValue(row[displayCol.name], displayCol.name, selectColumnMappingModels) }}
                         </ng-container>
                     </ng-container>
                     <ng-container [ngSwitch]="displayCol.propertyType" *ngIf="displayCol.isEditable">
@@ -66,7 +66,7 @@
                                 [formControlName]="displayCol.name"
                                 placeholder="Select from values"
                                 (click)="$event.stopPropagation()">
-                                    <mat-option *ngFor="let option of getOptionsForColumn(displayCol.name)" [value]="option.key">
+                                    <mat-option *ngFor="let option of dataGridHelperService.getOptionsForColumn(displayCol.name, selectColumnMappingModels)" [value]="option.key">
                                     {{ option.displayValue }}
                                     </mat-option>
                             </mat-select>
