@@ -9,7 +9,8 @@ import { isObservable } from "rxjs";
 import { tap } from 'rxjs/operators';
 
 import { ColumnHeader } from '../../models/column-header';
-import { DataGridHelperService } from '../../helpers/datagrid-helper-service'
+import { DataGridHelperService } from '../../helpers/datagrid-helper-service';
+import { SelectColumnMappingModel, SelectOption } from '../../models/select-models';
 
 @Component({
   selector: 'data-grid',
@@ -29,6 +30,8 @@ export class DataGridComponent<T> implements OnInit {
 
   @Input() dataSource: Observable<T[]> | T[] = [];
   @Input() rowSelection: boolean = false;
+
+  @Input() selectColumnMappingModels: SelectColumnMappingModel[] = [];
 
   matTableDataSource: MatTableDataSource<T> = new MatTableDataSource<T>([]);
   selection = new SelectionModel<T>(true, []);
@@ -164,6 +167,17 @@ export class DataGridComponent<T> implements OnInit {
     const subrowArrayObj: any = {};
     subrowArrayObj[key] = propValue;
     return this.formBuilder.control(subrowArrayObj);
+  }
+
+  getOptionsForColumn(columnName: string): SelectOption[] {
+    return this.selectColumnMappingModels.find(scmm => scmm.columnName === columnName)
+      ?.selectOptions
+      .sort((a, b) => a.displayOrder - b.displayOrder) ?? [];
+  }
+
+  getSelectedDisplayValue(key: any, columnName: string): string | undefined {
+    const colOptions = this.getOptionsForColumn(columnName);
+    return colOptions.find(co => co.key === key)?.displayValue;
   }
 
   /** Whether the number of selected elements matches the total number of rows. */

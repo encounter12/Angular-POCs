@@ -6,5 +6,6 @@ export class PeriodicElement {
     public weight: number | undefined;
     public isGas: boolean | undefined;
     public discoveredOn: Date | undefined;
-    public isotopes: Isotope[] = []; 
+    public isotopes: Isotope[] = [];
+    public classificationId: number | undefined;
 }

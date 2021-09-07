@@ -6,7 +6,8 @@ import { PeriodicElement } from './periodic-elements/models/periodic-element';
 import {
   ELEMENT_DATA,
   PERIODIC_ELEMENTS_COLUMNS_DATA,
-  PERIODIC_ELEMENTS_INNER_COLUMNS_DATA 
+  PERIODIC_ELEMENTS_INNER_COLUMNS_DATA,
+  PERIODIC_ELEMENTS_SELECT_MODELS
 } from './periodic-elements/data';
 
 @Component({
@@ -25,6 +26,7 @@ export class AppComponent {
 
   periodicElementsColDefinition = PERIODIC_ELEMENTS_COLUMNS_DATA;
   innerDisplayColumns = PERIODIC_ELEMENTS_INNER_COLUMNS_DATA;
+  periodicElementsSelectModels = PERIODIC_ELEMENTS_SELECT_MODELS;
 
   constructor() {}
 

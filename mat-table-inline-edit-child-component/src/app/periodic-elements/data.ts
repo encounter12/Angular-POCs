@@ -1,5 +1,6 @@
 import { PeriodicElement } from './models/periodic-element';
 import { ColumnHeader } from '../data-grid/models/column-header';
+import { SelectColumnMappingModel } from '../data-grid/models/select-models';
 
 export const PERIODIC_ELEMENTS_COLUMNS_DATA: ColumnHeader[] = [
   {
@@ -43,6 +44,14 @@ export const PERIODIC_ELEMENTS_COLUMNS_DATA: ColumnHeader[] = [
     propertyType: 'date'
   },
   {
+    name: 'classificationId',
+    displayName: 'Classification',
+    isEditable: true,
+    isVisible: true,
+    validators: [],
+    propertyType: 'select'
+  },
+  {
     name: 'isotopes',
     displayName: '',
     isEditable: false,
@@ -52,6 +61,34 @@ export const PERIODIC_ELEMENTS_COLUMNS_DATA: ColumnHeader[] = [
     hasSubrowArray: true
   }
 ];
+
+export const PERIODIC_ELEMENTS_SELECT_MODELS: SelectColumnMappingModel[] = [
+  {
+    columnName: 'classificationId',
+    selectOptions: [
+      {
+        key: 1,
+        displayValue: 'metal',
+        displayOrder: 1
+      },
+      {
+        key: 2,
+        displayValue: 'non-metal',
+        displayOrder: 2
+      },
+      {
+        key: 3,
+        displayValue: 'halogen',
+        displayOrder: 3
+      },
+      {
+        key: 4,
+        displayValue: 'nobel gas',
+        displayOrder: 4
+      }
+    ]
+  }
+]
 
 export const PERIODIC_ELEMENTS_INNER_COLUMNS_DATA: ColumnHeader[] = [
   {
@@ -95,6 +132,7 @@ export const ELEMENT_DATA: PeriodicElement[] = [
     weight: 1.0079,
     isGas: true,
     discoveredOn: new Date('2021-09-07'),
+    classificationId: 4,
     isotopes: [
     {
      name: 'Protium',
@@ -121,6 +159,7 @@ export const ELEMENT_DATA: PeriodicElement[] = [
     weight: 4.0026,
     isGas: true,
     discoveredOn: new Date('2021-11-23'),
+    classificationId: 4,
     isotopes: [
     {
       name: 'Helium-2 (diproton)',
@@ -144,6 +183,7 @@ export const ELEMENT_DATA: PeriodicElement[] = [
   {
     position: 3,
     name: 'Lithium',
+    classificationId: 1,
     weight: 6.94,
     isGas: false,
     discoveredOn: new Date('1998-11-17'),
