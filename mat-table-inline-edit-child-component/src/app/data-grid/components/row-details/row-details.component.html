@@ -14,6 +14,14 @@
           <mat-form-field floatLabel="never" *ngSwitchCase="'number'">
               <input matInput type="number" placeholder="{{innerColumn.displayName}}" [formControlName]="innerColumn.name">
           </mat-form-field>
+          <mat-checkbox *ngSwitchCase="'boolean'" (click)="$event.stopPropagation()" [formControlName]="innerColumn.name">
+          </mat-checkbox>
+          <mat-form-field *ngSwitchCase="'date'" appearance="fill">
+              <mat-label>Choose a date</mat-label>
+              <input matInput [matDatepicker]="picker" [formControlName]="innerColumn.name">
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
         </ng-container>
       </td>
     </ng-container>

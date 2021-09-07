@@ -35,6 +35,8 @@
                     <ng-container [ngSwitch]="displayCol.propertyType" *ngIf="!displayCol.isEditable">
                         <ng-container *ngSwitchCase="'text'">{{row[displayCol.name]}}</ng-container>
                         <ng-container *ngSwitchCase="'number'">{{row[displayCol.name]}}</ng-container>
+                        <mat-checkbox *ngSwitchCase="'boolean'" (click)="$event.stopPropagation()" [formControlName]="displayCol.name" [disabled]="true">
+                        </mat-checkbox>
                     </ng-container>
                     <ng-container [ngSwitch]="displayCol.propertyType" *ngIf="displayCol.isEditable">
                         <mat-form-field floatLabel="never" *ngSwitchCase="'text'">
@@ -42,6 +44,14 @@
                         </mat-form-field>
                         <mat-form-field floatLabel="never" *ngSwitchCase="'number'">
                             <input matInput type="number" placeholder="{{displayCol.displayName}}" [formControlName]="displayCol.name">
+                        </mat-form-field>
+                        <mat-checkbox *ngSwitchCase="'boolean'" (click)="$event.stopPropagation()" [formControlName]="displayCol.name">
+                        </mat-checkbox>
+                        <mat-form-field *ngSwitchCase="'date'" appearance="fill">
+                            <mat-label>Choose a date</mat-label>
+                            <input matInput [matDatepicker]="picker" [formControlName]="displayCol.name">
+                            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                            <mat-datepicker #picker></mat-datepicker>
                         </mat-form-field>
                     </ng-container>
             </td>
