@@ -62,34 +62,6 @@ export const PERIODIC_ELEMENTS_COLUMNS_DATA: ColumnHeader[] = [
   }
 ];
 
-export const PERIODIC_ELEMENTS_SELECT_MODELS: SelectColumnMappingModel[] = [
-  {
-    columnName: 'classificationId',
-    selectOptions: [
-      {
-        key: 1,
-        displayValue: 'metal',
-        displayOrder: 1
-      },
-      {
-        key: 2,
-        displayValue: 'non-metal',
-        displayOrder: 2
-      },
-      {
-        key: 3,
-        displayValue: 'halogen',
-        displayOrder: 3
-      },
-      {
-        key: 4,
-        displayValue: 'nobel gas',
-        displayOrder: 4
-      }
-    ]
-  }
-]
-
 export const PERIODIC_ELEMENTS_INNER_COLUMNS_DATA: ColumnHeader[] = [
   {
       name: 'name',
@@ -133,23 +105,7 @@ export const PERIODIC_ELEMENTS_INNER_COLUMNS_DATA: ColumnHeader[] = [
   }
 ];
 
-export const PERIODIC_ELEMENTS_INNER_SELECT_MODELS: SelectColumnMappingModel[] = [
-  {
-    columnName: 'classificationId',
-    selectOptions: [
-      {
-        key: 1,
-        displayValue: 'stable',
-        displayOrder: 1
-      },
-      {
-        key: 2,
-        displayValue: 'radioactive',
-        displayOrder: 2
-      }
-    ]
-  }
-]
+// -----------------------------
 
 export const ELEMENT_DATA: PeriodicElement[] = [
   {
@@ -222,3 +178,49 @@ export const ELEMENT_DATA: PeriodicElement[] = [
     isotopes: []
   }
 ];
+
+export const PERIODIC_ELEMENTS_SELECT_MODELS: SelectColumnMappingModel[] = [
+  {
+    columnName: 'classificationId',
+    selectOptions: [
+      {
+        key: 1,
+        displayValue: 'metal',
+        displayOrder: 1
+      },
+      {
+        key: 2,
+        displayValue: 'non-metal',
+        displayOrder: 2
+      },
+      {
+        key: 3,
+        displayValue: 'halogen',
+        displayOrder: 3
+      },
+      {
+        key: 4,
+        displayValue: 'nobel gas',
+        displayOrder: 4
+      }
+    ]
+  }
+]
+
+export const PERIODIC_ELEMENTS_INNER_SELECT_MODELS: SelectColumnMappingModel[] = [
+  {
+    columnName: 'classificationId',
+    selectOptions: [
+      {
+        key: 1,
+        displayValue: 'stable',
+        displayOrder: 1
+      },
+      {
+        key: 2,
+        displayValue: 'radioactive',
+        displayOrder: 2
+      }
+    ]
+  }
+]
