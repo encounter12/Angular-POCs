@@ -1,5 +1,17 @@
 <ng-container [formGroup]="subrowGroup" >
   <table mat-table [dataSource]="subrowDataSource" formArrayName="{{subrowArrayPropName}}" class="row-details-table">
+    <ng-container matColumnDef="select" *ngIf="subrowSelection">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row; let rowIndex = index">
+          <mat-checkbox
+              (click)="$event.stopPropagation()"
+              (change)="onMySelectionChange($event, row, rowIndex)"
+              [checked]="selection.isSelected(row)"
+              [aria-label]="checkboxLabel(row, rowIndex)">
+          </mat-checkbox>
+      </td>
+    </ng-container>
+
     <ng-container matColumnDef="{{innerColumn.name}}" *ngFor="let innerColumn of innerDisplayColumns">
       <th mat-header-cell *matHeaderCellDef [hidden]="!innerColumn.isVisible"> {{innerColumn.displayName}} </th>
       <td mat-cell *matCellDef="let row; let rowIndex = index" [hidden]="!innerColumn.isVisible" [formGroupName]="rowIndex">
@@ -15,7 +27,7 @@
               <input matInput type="text" placeholder="{{innerColumn.displayName}}" [formControlName]="innerColumn.name">
           </mat-form-field>
           <mat-form-field floatLabel="never" *ngSwitchCase="'number'">
-              <input matInput type="number" placeholder="{{innerColumn.displayName}}" [formControlName]="innerColumn.name">
+              <input matInput type="number" placeholder="{{innerColumn.displayName}}" [formControlName]="innerColumn.name" (click)="$event.stopPropagation()">
           </mat-form-field>
           <mat-checkbox *ngSwitchCase="'boolean'" (click)="$event.stopPropagation()" [formControlName]="innerColumn.name">
           </mat-checkbox>
@@ -42,4 +54,3 @@
     <tr mat-row *matRowDef="let rowElement; columns: innerDisplayColumnsProps"></tr>
   </table>
 </ng-container>
-

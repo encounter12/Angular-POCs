@@ -7,10 +7,14 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Observable } from 'rxjs';
 import { isObservable } from "rxjs";
 import { tap } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 import { ColumnHeader } from '../../models/column-header';
 import { DataGridHelperService } from '../../helpers/datagrid-helper-service';
-import { SelectColumnMappingModel, SelectOption } from '../../models/select-models';
+import { SelectColumnMappingModel } from '../../models/select-models';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+
+import { SelectedFormArrayElement } from '../../models/selected-form-array-element';
 
 @Component({
   selector: 'data-grid',
@@ -30,6 +34,7 @@ export class DataGridComponent<T> implements OnInit {
 
   @Input() dataSource: Observable<T[]> | T[] = [];
   @Input() rowSelection: boolean = false;
+  @Input() subrowSelection: boolean = false;
 
   @Input() selectColumnMappingModels: SelectColumnMappingModel[] = [];
   @Input() selectInnerColumnMappingModels: SelectColumnMappingModel[] = [];
@@ -37,8 +42,10 @@ export class DataGridComponent<T> implements OnInit {
   matTableDataSource: MatTableDataSource<T> = new MatTableDataSource<T>([]);
   selection = new SelectionModel<T>(true, []);
 
-  selectedFormArrayElementIndices: number[] = [];
+  selectedFormArrayElementIndices: SelectedFormArrayElement[] = [];
   selectedFormArrayElements: T[] = [];
+
+  mainRowSelectedObj: Subject<{ isMainRowSelected: boolean, masterRowIndex: number }> = new Subject<{ isMainRowSelected: boolean, masterRowIndex: number }>();
 
   subrowArrayPropName = 'subrowArray';
 
@@ -79,7 +86,11 @@ export class DataGridComponent<T> implements OnInit {
 
     const firstDataSourceElement = this.matTableDataSource.data[0];
 
-    if (firstDataSourceElement) {
+    const subrowArrayColumn = this.displayColumns.find(c => c.hasSubrowArray);
+
+    if (subrowArrayColumn && firstDataSourceElement && subrowArrayColumn.name === (firstDataSourceElement as any)['name']) {
+      this.expandedDetailFormControlName = subrowArrayColumn.name;
+    } else if (firstDataSourceElement) {
       this.expandedDetailFormControlName = Object.keys(firstDataSourceElement)
         .find(key => (firstDataSourceElement as any)[key].constructor === Array) ?? '';
     }
@@ -87,18 +98,10 @@ export class DataGridComponent<T> implements OnInit {
     this.parentFormFormArray.valueChanges.subscribe(() => {
       this.onFormUpdate.emit(this.parentFormFormArray.value);
       if (this.rowSelection && this.rowSelectionHasChanged && this.parentFormGroup.valid) {
-        this.updateFormArrayElementsOnRowSelectionChange();
+        this.updateFormArrayElementsOnSelectionChange();
         this.onSelectRow.emit(this.selectedFormArrayElements);
       }
     });
-
-    if (this.rowSelection) {
-      this.selection.changed.subscribe((x) => {
-        this.rowSelectionHasChanged = true;
-        this.updateFormArrayElementsOnRowSelectionChange();
-        this.onSelectRow.emit(this.selectedFormArrayElements);
-      });
-    }
 
     if (this.displayColumns.length === 0) {
       if (firstDataSourceElement) {
@@ -121,6 +124,14 @@ export class DataGridComponent<T> implements OnInit {
     }
 
     this.isFormEditable = this.displayColumns.some(x => x.isEditable) || this.innerDisplayColumns.some(x => x.isEditable);
+  }
+
+  onMasterToggleSelectionChange(event: MatCheckboxChange) {
+    return event ? this.masterToggleRowSelection() : null;
+  }
+
+  onRowSelectionChange(event: MatCheckboxChange, row: T, rowIndex: number) {
+    return event ? this.toggleRowSelection(row, rowIndex) : null;
   }
 
   getDataSource(): Observable<T[]> {
@@ -185,29 +196,119 @@ export class DataGridComponent<T> implements OnInit {
       return;
     }
 
-    this.selectedFormArrayElementIndices = this.dataGridHelperService.range(this.parentFormFormArray.length, 0);
+    this.selectedFormArrayElementIndices = this.buildMarkedSelectedFormArrayElementIndices();
     this.selection.select(...this.matTableDataSource.data);
   }
 
-  toggleRowSelection(row: any, rowIndex: number) {
-    const isSelected = this.selection.isSelected(row);
+  buildMarkedSelectedFormArrayElementIndices(): SelectedFormArrayElement[] {
+    let selectedFormArrayElementIndices: SelectedFormArrayElement[] = [];
 
-    if (!isSelected && !this.selectedFormArrayElementIndices.some(x => x === rowIndex)) {
-      this.selectedFormArrayElementIndices.push(rowIndex);
-    } else if (isSelected && this.selectedFormArrayElementIndices.some(x => x === rowIndex)) {
-      this.selectedFormArrayElementIndices = this.selectedFormArrayElementIndices.filter(e => e !== rowIndex);
-    }
+    this.parentFormFormArray.value.forEach((el: T, currentIndex: number) => {
+      let selectedFormArrayElement = new SelectedFormArrayElement(currentIndex, []);
 
-    this.selection.toggle(row);
+      const subrowArray = Array.from((el as any)[this.expandedDetailFormControlName]);
+      subrowArray.forEach((_, index) => {
+        selectedFormArrayElement.subrowFormArrayElements?.push(new SelectedFormArrayElement(index, []));
+      });
+
+      selectedFormArrayElementIndices.push(selectedFormArrayElement);
+    });
+
+    return selectedFormArrayElementIndices;
   }
 
-  updateFormArrayElementsOnRowSelectionChange() {
+  
+  buildSelectedFormArrayElement(rowIndex: number, formArray: FormArray): SelectedFormArrayElement {
+    let selectedFormArrayElement = new SelectedFormArrayElement(rowIndex, []);
+    const parentFormArrayElement = formArray.at(rowIndex).value;
+
+    if (this.expandedDetailFormControlName && this.expandedDetailFormControlName.length > 0) {
+      const subrowArray = Array.from(parentFormArrayElement[this.expandedDetailFormControlName][this.expandedDetailFormControlName]);
+
+      subrowArray.forEach((ch, index) => {
+        selectedFormArrayElement.subrowFormArrayElements?.push(new SelectedFormArrayElement(index, []));
+      });
+    }
+    return selectedFormArrayElement;
+  }
+
+  toggleRowSelection(row: any, rowIndex: number) {
+    const isSelectedBeforeChange = this.selection.isSelected(row);
+    let isGoingToBeSelected = false;
+
+    const subformArr = Array.from(this.parentFormFormArray.at(rowIndex).value[this.expandedDetailFormControlName][this.expandedDetailFormControlName]);
+
+    if (!isSelectedBeforeChange && !this.selectedFormArrayElementIndices.some(x => x.index === rowIndex)) {
+      const selectedFormArrayElement = this.buildSelectedFormArrayElement(rowIndex, this.parentFormFormArray);
+      this.selectedFormArrayElementIndices.push(selectedFormArrayElement);
+      isGoingToBeSelected = true;
+    } else if (isSelectedBeforeChange && this.selectedFormArrayElementIndices.some(x => x.index === rowIndex)) {
+      this.selectedFormArrayElementIndices = this.selectedFormArrayElementIndices.filter(e => e.index !== rowIndex);
+      isGoingToBeSelected = false;
+    }
+
+    this.rowSelectionHasChanged = true;
+    this.updateFormArrayElementsOnSelectionChange();
+
+    this.onSelectRow.emit(this.selectedFormArrayElements);
+    this.selection.toggle(row);
+    this.mainRowSelectedObj.next({ isMainRowSelected: isGoingToBeSelected, masterRowIndex: rowIndex});
+  }
+
+  updateFormArrayElementsOnSelectionChange() {
     this.selectedFormArrayElements = [];
 
-    this.selectedFormArrayElementIndices.forEach((val) => {
-      const element = this.parentFormFormArray.at(val).value;
-      this.selectedFormArrayElements.push(element);
+    this.selectedFormArrayElementIndices.forEach((selectedFormArrayElement: SelectedFormArrayElement) => {
+
+      const formArrayElementFormGroup = this.parentFormFormArray.at(selectedFormArrayElement.index) as FormGroup;
+      const formArrayElementFormGroupControls = formArrayElementFormGroup.controls;
+
+      const subrows = formArrayElementFormGroupControls[this.expandedDetailFormControlName].value[this.expandedDetailFormControlName];
+
+      let selectedMasterElement: any = {};
+
+      for (const field in formArrayElementFormGroupControls) {
+        if (field !== this.expandedDetailFormControlName) {
+          const control = formArrayElementFormGroup.get(field);
+          selectedMasterElement[field] = control?.value;
+        }
+      }
+
+      if (this.expandedDetailFormControlName && this.expandedDetailFormControlName.length > 0 && subrows && subrows.length > 0) {
+        const selectedSubrows: any[] = [];
+        selectedFormArrayElement.subrowFormArrayElements.forEach((selectedSubrowArrayElement: SelectedFormArrayElement) => {
+          selectedSubrows.push(subrows[selectedSubrowArrayElement.index]);
+        });
+
+        const subrowsObj: any = {};
+        subrowsObj[this.expandedDetailFormControlName] = selectedSubrows;
+
+        selectedMasterElement[this.expandedDetailFormControlName] = subrowsObj;
+      }
+
+      this.selectedFormArrayElements.push(selectedMasterElement);
     });
+  }
+
+  toggleSubrowSelection(selectedSubrows: any) {
+    if (selectedSubrows && 
+      selectedSubrows.selectedFormArrayElementIndices &&
+      selectedSubrows.selectedFormArrayElementIndices.length > 0) {
+        this.selection.select(this.matTableDataSource.data[selectedSubrows.masterRowIndex]);
+    }
+
+    const index = this.selectedFormArrayElementIndices.findIndex(x => x.index === selectedSubrows.masterRowIndex);
+
+    if (index === -1 && selectedSubrows.selectedFormArrayElementIndices.length > 0) {
+      const selectedFormArrayElement = new SelectedFormArrayElement(selectedSubrows.masterRowIndex, selectedSubrows.selectedFormArrayElementIndices)
+      this.selectedFormArrayElementIndices.push(selectedFormArrayElement);
+    } else if (index > -1) {
+      this.selectedFormArrayElementIndices[index].subrowFormArrayElements = selectedSubrows.selectedFormArrayElementIndices;
+    }
+    
+    this.updateFormArrayElementsOnSelectionChange();
+
+    this.onSelectRow.emit(this.selectedFormArrayElements);
   }
 
   /** The label for the checkbox on the passed row */
@@ -232,7 +333,7 @@ export class DataGridComponent<T> implements OnInit {
   }
 
   areSelectedRowsValid(): boolean {
-    const areValid = !this.selectedFormArrayElementIndices.some(el => this.parentFormFormArray.at(el).invalid)
+    const areValid = !this.selectedFormArrayElementIndices.some(el => this.parentFormFormArray.at(el.index).invalid)
     return areValid;
   }
 }

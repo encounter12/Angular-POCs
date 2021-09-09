@@ -9,7 +9,7 @@
         <ng-container matColumnDef="select" *ngIf="rowSelection">
             <th mat-header-cell *matHeaderCellDef>
                 <mat-checkbox
-                    (change)="$event ? masterToggleRowSelection() : null"
+                    (change)="onMasterToggleSelectionChange($event)"
                     [checked]="selection.hasValue() && isAllSelected()"
                     [indeterminate]="selection.hasValue() && !isAllSelected()"
                     [aria-label]="checkboxLabel()">
@@ -18,7 +18,7 @@
             <td mat-cell *matCellDef="let row; let rowIndex = dataIndex">
                 <mat-checkbox
                     (click)="$event.stopPropagation()"
-                    (change)="$event ? toggleRowSelection(row, rowIndex) : null"
+                    (change)="onRowSelectionChange($event, row, rowIndex)"
                     [checked]="selection.isSelected(row)"
                     [aria-label]="checkboxLabel(row, rowIndex)">
                 </mat-checkbox>
@@ -83,11 +83,15 @@
                     [@detailExpand]="rowElement == expandedElement ? 'expanded' : 'collapsed'">
                         <app-row-details
                             class="inner-table"
-                            *ngIf="expandedElement"
+                            [hidden]="!expandedElement"
                             formControlName="{{expandedDetailFormControlName}}"
                             [innerDisplayColumns]="innerDisplayColumns"
                             [subrowArrayPropName]="subrowArrayPropName"
-                            [selectInnerColumnMappingModels]="selectInnerColumnMappingModels">
+                            [selectInnerColumnMappingModels]="selectInnerColumnMappingModels"
+                            [subrowSelection]="subrowSelection"
+                            [masterRowIndex]="rowIndex"
+                            [onMainRowSelected]="mainRowSelectedObj"
+                            (onSelectSubrow)="toggleSubrowSelection($event)">
                         </app-row-details>
                 </div>
             </td>
