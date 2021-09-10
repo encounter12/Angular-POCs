@@ -90,7 +90,6 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
     this.subrowFormArray.valueChanges.subscribe(() => {
       this.onFormUpdate.emit(this.subrowFormArray.value);
       if (this.subrowSelection && this.subrowSelectionHasChanged && this.subrowFormArray.valid) {
-        // this.updateFormArrayElementsOnRowSelectionChange();
         const areSelectedSubrowsValid = this.areSelectedSubrowsValid();
         this.onSelectSubrow.emit({ 
           selectedFormArrayElementIndices: this.selectedFormArrayElementIndices,
@@ -103,7 +102,6 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
     if (this.subrowSelection) {
       this.selection.changed.subscribe((x) => {
         this.subrowSelectionHasChanged = true;
-        // this.updateFormArrayElementsOnRowSelectionChange();
         const areSelectedSubrowsValid = this.areSelectedSubrowsValid();
         this.onSelectSubrow.emit({ 
           selectedFormArrayElementIndices: this.selectedFormArrayElementIndices,
@@ -158,18 +156,18 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${rowIndex ?? 0 + 1}`;
   }
 
-  clearSelectionForAll() {
-    this.selectedFormArrayElementIndices = [];
-    this.selection.clear();
-  }
-
-  onMySelectionChange(event: any, row: T, rowIndex: number) {
+  onSubrowSelectionChange(event: any, row: T, rowIndex: number) {
     return event ? this.toggleRowSelection(row, rowIndex) : null;
   }
 
   selectAllSubrows() {
     this.selectedFormArrayElementIndices = this.buildMarkedSelectedFormArrayElements();
     this.selection.select(...this.subrowDataSource);
+  }
+
+  clearSelectionForAll() {
+    this.selectedFormArrayElementIndices = [];
+    this.selection.clear();
   }
 
   buildMarkedSelectedFormArrayElements(): SelectedFormArrayElement[] {
