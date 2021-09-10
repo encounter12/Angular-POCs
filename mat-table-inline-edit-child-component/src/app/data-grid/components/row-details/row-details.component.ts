@@ -82,11 +82,6 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
   }
 
   ngOnInit() {
-
-    // const gosho: any = {};
-    // gosho[this.subrowArrayPropName] = this.subrowFormArray;
-    // this.subrowGroup.setControl(this.subrowArrayPropName, this.subrowFormArray);
-
     this.subrowFormArray.valueChanges.subscribe(() => {
       this.onFormUpdate.emit(this.subrowFormArray.value);
       if (this.subrowSelection && this.subrowSelectionHasChanged && this.subrowFormArray.valid) {
