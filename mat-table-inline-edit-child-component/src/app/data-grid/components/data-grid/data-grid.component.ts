@@ -45,7 +45,7 @@ export class DataGridComponent<T> implements OnInit {
   selectedFormArrayElementIndices: SelectedFormArrayElement[] = [];
   selectedFormArrayElements: T[] = [];
 
-  mainRowSelectedObj: Subject<{ isMainRowSelected: boolean, masterRowIndex: number }> = new Subject<{ isMainRowSelected: boolean, masterRowIndex: number }>();
+  mainRowSelectedObj: Subject<{ isMainRowSelected: boolean, masterRowIndex: number | null}> = new Subject<{ isMainRowSelected: boolean, masterRowIndex: number | null}>();
 
   subrowArrayPropName = 'subrowArray';
 
@@ -130,6 +130,20 @@ export class DataGridComponent<T> implements OnInit {
     return event ? this.masterToggleRowSelection() : null;
   }
 
+  /** Selects all rows if they are not all selected; otherwise clear selection. */
+  masterToggleRowSelection() {
+    if (this.isAllSelected()) {
+      this.selectedFormArrayElementIndices = [];
+      this.selection.clear();
+      this.mainRowSelectedObj.next({ isMainRowSelected: false, masterRowIndex: null});
+      return;
+    }
+
+    this.selectedFormArrayElementIndices = this.buildMarkedSelectedFormArrayElementIndices();
+    this.selection.select(...this.matTableDataSource.data);
+    this.mainRowSelectedObj.next({ isMainRowSelected: true, masterRowIndex: null});
+  }
+
   onRowSelectionChange(event: MatCheckboxChange, row: T, rowIndex: number) {
     return event ? this.toggleRowSelection(row, rowIndex) : null;
   }
@@ -188,18 +202,6 @@ export class DataGridComponent<T> implements OnInit {
     return numSelected === numRows;
   }
 
-  /** Selects all rows if they are not all selected; otherwise clear selection. */
-  masterToggleRowSelection() {
-    if (this.isAllSelected()) {
-      this.selectedFormArrayElementIndices = [];
-      this.selection.clear();
-      return;
-    }
-
-    this.selectedFormArrayElementIndices = this.buildMarkedSelectedFormArrayElementIndices();
-    this.selection.select(...this.matTableDataSource.data);
-  }
-
   buildMarkedSelectedFormArrayElementIndices(): SelectedFormArrayElement[] {
     let selectedFormArrayElementIndices: SelectedFormArrayElement[] = [];
 
@@ -235,8 +237,6 @@ export class DataGridComponent<T> implements OnInit {
   toggleRowSelection(row: any, rowIndex: number) {
     const isSelectedBeforeChange = this.selection.isSelected(row);
     let isGoingToBeSelected = false;
-
-    const subformArr = Array.from(this.parentFormFormArray.at(rowIndex).value[this.expandedDetailFormControlName][this.expandedDetailFormControlName]);
 
     if (!isSelectedBeforeChange && !this.selectedFormArrayElementIndices.some(x => x.index === rowIndex)) {
       const selectedFormArrayElement = this.buildSelectedFormArrayElement(rowIndex, this.parentFormFormArray);

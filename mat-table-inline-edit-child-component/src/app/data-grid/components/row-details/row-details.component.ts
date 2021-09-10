@@ -49,8 +49,8 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
 
   @Input() masterRowIndex!: number;
 
-  @Input() onMainRowSelected: Observable<{ isMainRowSelected: boolean, masterRowIndex: number }> =
-    new Observable<{ isMainRowSelected: boolean, masterRowIndex: number }>();
+  @Input() onMainRowSelected: Observable<{ isMainRowSelected: boolean, masterRowIndex: number | null}> =
+    new Observable<{ isMainRowSelected: boolean, masterRowIndex: number | null}>();
 
   @Output() onSelectSubrow = new EventEmitter<{ selectedFormArrayElementIndices: SelectedFormArrayElement[], masterRowIndex: number, areSelectedSubrowsValid: boolean}>();
 
@@ -113,8 +113,8 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
       });
 
       //TODO: set subscription variable and unsubscribe it onDestroy
-      this.onMainRowSelected.subscribe((onMainRowSelectedObj: { isMainRowSelected: boolean, masterRowIndex: number }) => {
-        if (onMainRowSelectedObj.masterRowIndex === this.masterRowIndex) {
+      this.onMainRowSelected.subscribe((onMainRowSelectedObj: { isMainRowSelected: boolean, masterRowIndex: number | null }) => {
+        if (onMainRowSelectedObj.masterRowIndex === this.masterRowIndex || onMainRowSelectedObj.masterRowIndex == null) {
           if (!onMainRowSelectedObj.isMainRowSelected) {
             this.clearSelectionForAll();
           } else if (onMainRowSelectedObj.isMainRowSelected) {
