@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef, Input, Output, EventEmitter } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, AbstractControl } from '@angular/forms';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatTableDataSource } from '@angular/material/table';
@@ -38,6 +38,8 @@ export class DataGridComponent<T> implements OnInit {
 
   @Input() selectColumnMappingModels: SelectColumnMappingModel[] = [];
   @Input() selectInnerColumnMappingModels: SelectColumnMappingModel[] = [];
+
+  @Input() hasFilter = false;
 
   matTableDataSource: MatTableDataSource<T> = new MatTableDataSource<T>([]);
   selection = new SelectionModel<T>(true, []);
@@ -93,6 +95,13 @@ export class DataGridComponent<T> implements OnInit {
     } else if (firstDataSourceElement) {
       this.expandedDetailFormControlName = Object.keys(firstDataSourceElement)
         .find(key => (firstDataSourceElement as any)[key].constructor === Array) ?? '';
+    }
+
+    if (this.hasFilter) {
+      const filterPredicate = this.matTableDataSource.filterPredicate;
+      this.matTableDataSource.filterPredicate = (data: T, filter) => {
+        return filterPredicate.call(this.dataSource, data, filter);
+      }
     }
 
     this.parentFormFormArray.valueChanges.subscribe(() => {
@@ -335,5 +344,10 @@ export class DataGridComponent<T> implements OnInit {
   areSelectedRowsValid(): boolean {
     const areValid = !this.selectedFormArrayElementIndices.some(el => this.parentFormFormArray.at(el.index).invalid)
     return areValid;
+  }
+
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.matTableDataSource.filter = filterValue.trim().toLowerCase();
   }
 }

@@ -1,4 +1,8 @@
 <form [formGroup]="parentFormGroup" (ngSubmit)="submit()">
+    <mat-form-field appearance="standard" *ngIf="hasFilter">
+        <mat-label>Filter</mat-label>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Filter values..." #input>
+    </mat-form-field>
     <table
         mat-table
         [dataSource]="matTableDataSource"
