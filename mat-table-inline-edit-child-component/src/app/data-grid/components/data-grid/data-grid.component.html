@@ -37,8 +37,8 @@
                 [hidden]="!displayCol.isVisible"
                 [formGroupName]="rowIndex">
                     <ng-container [ngSwitch]="displayCol.propertyType" *ngIf="!displayCol.isEditable">
-                        <ng-container *ngSwitchCase="'text'">{{row[displayCol.name]}}</ng-container>
-                        <ng-container *ngSwitchCase="'number'">{{row[displayCol.name]}}</ng-container>
+                        <ng-container *ngSwitchCase="'text'">{{row.get(displayCol.name).value}}</ng-container>
+                        <ng-container *ngSwitchCase="'number'">{{row.get(displayCol.name).value}}</ng-container>
                         <mat-checkbox
                             *ngSwitchCase="'boolean'"
                             (click)="$event.stopPropagation()"
@@ -83,7 +83,7 @@
             <td mat-cell *matCellDef="let rowElement; let rowIndex = dataIndex" [formGroupName]="rowIndex" [attr.colspan]="columnsProps.length">
                 <div
                     class="element-detail"
-                    *ngIf="rowElement[expandedDetailFormControlName]?.length"
+                    *ngIf="rowElement.get(expandedDetailFormControlName)?.value[expandedDetailFormControlName]?.length"
                     [@detailExpand]="rowElement == expandedElement ? 'expanded' : 'collapsed'">
                         <app-row-details
                             class="inner-table"

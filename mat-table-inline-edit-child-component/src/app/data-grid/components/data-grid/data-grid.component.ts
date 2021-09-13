@@ -41,8 +41,8 @@ export class DataGridComponent<T> implements OnInit {
 
   @Input() hasFilter = false;
 
-  matTableDataSource: MatTableDataSource<T> = new MatTableDataSource<T>([]);
-  selection = new SelectionModel<T>(true, []);
+  matTableDataSource: MatTableDataSource<AbstractControl> = new MatTableDataSource<AbstractControl>([]);
+  selection = new SelectionModel<AbstractControl>(true, []);
 
   selectedFormArrayElementIndices: SelectedFormArrayElement[] = [];
   selectedFormArrayElements: T[] = [];
@@ -62,7 +62,7 @@ export class DataGridComponent<T> implements OnInit {
   public parentFormFormArray: FormArray = this.formBuilder.array([]);
   public parentFormGroup: FormGroup = this.formBuilder.group({ 'parentFormFormArray': this.parentFormFormArray });
 
-  expandedElement: T | null | undefined;
+  expandedElement: FormGroup | null | undefined;
 
   isFormEditable = false;
 
@@ -83,10 +83,8 @@ export class DataGridComponent<T> implements OnInit {
   }
 
   initializeMatTable(data: T[]) {
-    this.matTableDataSource = new MatTableDataSource<T>(data);
-    this.matTableDataSource.data.forEach((pe) => this.addRow(pe));
 
-    const firstDataSourceElement = this.matTableDataSource.data[0];
+    const firstDataSourceElement = data[0];
 
     const subrowArrayColumn = this.displayColumns.find(c => c.hasSubrowArray);
 
@@ -97,10 +95,14 @@ export class DataGridComponent<T> implements OnInit {
         .find(key => (firstDataSourceElement as any)[key].constructor === Array) ?? '';
     }
 
+    data.forEach((pe) => this.addRow(pe));
+
+    this.matTableDataSource = new MatTableDataSource<AbstractControl>(this.parentFormFormArray.controls);
+
     if (this.hasFilter) {
       const filterPredicate = this.matTableDataSource.filterPredicate;
-      this.matTableDataSource.filterPredicate = (data: T, filter) => {
-        return filterPredicate.call(this.dataSource, data, filter);
+      this.matTableDataSource.filterPredicate = (data: AbstractControl, filter: string): boolean => {
+        return filterPredicate.call(this.matTableDataSource, data.value, filter);
       }
     }
 
@@ -153,7 +155,7 @@ export class DataGridComponent<T> implements OnInit {
     this.mainRowSelectedObj.next({ isMainRowSelected: true, masterRowIndex: null});
   }
 
-  onRowSelectionChange(event: MatCheckboxChange, row: T, rowIndex: number) {
+  onRowSelectionChange(event: MatCheckboxChange, row: FormGroup, rowIndex: number) {
     return event ? this.toggleRowSelection(row, rowIndex) : null;
   }
 
@@ -243,7 +245,7 @@ export class DataGridComponent<T> implements OnInit {
     return selectedFormArrayElement;
   }
 
-  toggleRowSelection(row: any, rowIndex: number) {
+  toggleRowSelection(row: FormGroup, rowIndex: number) {
     const isSelectedBeforeChange = this.selection.isSelected(row);
     let isGoingToBeSelected = false;
 
@@ -321,15 +323,17 @@ export class DataGridComponent<T> implements OnInit {
   }
 
   /** The label for the checkbox on the passed row */
-  checkboxLabel(row?: T, rowIndex?: number): string {
+  checkboxLabel(row?: AbstractControl, rowIndex?: number): string {
     if (!row) {
       return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
     }
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${rowIndex ?? 0 + 1}`;
   }
 
-  toggleExpandRow(rowElement: T) {
-    (rowElement as any)[this.expandedDetailFormControlName] && (rowElement as any)[this.expandedDetailFormControlName].length ?
+  toggleExpandRow(rowElement: FormGroup) {
+    rowElement.value[this.expandedDetailFormControlName] && 
+    rowElement.value[this.expandedDetailFormControlName][this.expandedDetailFormControlName]
+    rowElement.value[this.expandedDetailFormControlName][this.expandedDetailFormControlName].length > 0 ?
       (this.expandedElement = this.expandedElement === rowElement ? null : rowElement) : null;
 
     this.changeDetectorRef.detectChanges();
