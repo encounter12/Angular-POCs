@@ -1,12 +1,12 @@
 <ng-container [formGroup]="subrowGroup" >
-  <table mat-table [dataSource]="subrowDataSource" formArrayName="{{subrowArrayPropName}}" class="row-details-table">
+  <table mat-table [dataSource]="matTableDataSource" formArrayName="{{subrowArrayPropName}}" class="row-details-table">
     <ng-container matColumnDef="select" *ngIf="subrowSelection">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let row; let rowIndex = index">
           <mat-checkbox
               (click)="$event.stopPropagation()"
-              (change)="onSubrowSelectionChange($event, row, rowIndex)"
-              [checked]="selection.isSelected(row)"
+              (change)="onSubrowSelectionChange($event, row)"
+              [checked]="isRowSelected(row)"
               [aria-label]="checkboxLabel(row, rowIndex)">
           </mat-checkbox>
       </td>
@@ -14,12 +14,12 @@
 
     <ng-container matColumnDef="{{innerColumn.name}}" *ngFor="let innerColumn of innerDisplayColumns">
       <th mat-header-cell *matHeaderCellDef [hidden]="!innerColumn.isVisible"> {{innerColumn.displayName}} </th>
-      <td mat-cell *matCellDef="let row; let rowIndex = index" [hidden]="!innerColumn.isVisible" [formGroupName]="rowIndex">
+      <td mat-cell *matCellDef="let row; let rowIndex = index" [hidden]="!innerColumn.isVisible" [formGroup]="row">
         <ng-container [ngSwitch]="innerColumn.propertyType" *ngIf="!innerColumn.isEditable">
-          <ng-container *ngSwitchCase="'text'">{{row[innerColumn.name]}}</ng-container>
-          <ng-container *ngSwitchCase="'number'">{{row[innerColumn.name]}}</ng-container>
+          <ng-container *ngSwitchCase="'text'">{{row.get(innerColumn.name).value}}</ng-container>
+          <ng-container *ngSwitchCase="'number'">{{row.get(innerColumn.name).value}}</ng-container>
           <ng-container *ngSwitchCase="'select'">
-              {{ dataGridHelperService.getSelectedDisplayValue(row[innerColumn.name], innerColumn.name, selectInnerColumnMappingModels) }}
+              {{ getSelectedDisplayValue(row, innerColumn.name) }}
           </ng-container>
         </ng-container>
         <ng-container [ngSwitch]="innerColumn.propertyType" *ngIf="innerColumn.isEditable">
@@ -42,7 +42,7 @@
                 [formControlName]="innerColumn.name"
                 placeholder="Select from values"
                 (click)="$event.stopPropagation()">
-                    <mat-option *ngFor="let option of dataGridHelperService.getOptionsForColumn(innerColumn.name, selectInnerColumnMappingModels)" [value]="option.key">
+                    <mat-option *ngFor="let option of getOptionsForColumn(innerColumn.name)" [value]="option.key">
                       {{ option.displayValue }}
                     </mat-option>
             </mat-select>

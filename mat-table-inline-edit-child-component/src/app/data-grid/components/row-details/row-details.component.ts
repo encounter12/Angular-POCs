@@ -11,14 +11,14 @@ import {
   FormArray
 } from '@angular/forms';
 
-import { SelectionModel } from '@angular/cdk/collections';
-
 import { Observable, Subscription } from 'rxjs';
 import { ColumnHeader } from '../../models/column-header';
 import { DataGridHelperService } from '../../helpers/datagrid-helper-service';
 import { SelectColumnMappingModel } from '../../models/select-models';
 
-import { SelectedFormArrayElement } from '../../models/selected-form-array-element';
+import { MatTableDataSource } from '@angular/material/table';
+import { SelectedMasterRow } from '../../models/selected-master-row';
+import { RowSelectionService } from '../../helpers/row-selection-service';
 
 @Component({
   selector: 'app-row-details',
@@ -47,25 +47,20 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
 
   @Input() subrowSelection: boolean = false;
 
-  @Input() masterRowIndex!: number;
+  @Input() masterRow!: AbstractControl;
 
-  @Input() onMainRowSelected: Observable<{ isMainRowSelected: boolean, masterRowIndex: number | null}> =
-    new Observable<{ isMainRowSelected: boolean, masterRowIndex: number | null}>();
-
-  @Output() onSelectSubrow = new EventEmitter<{ selectedFormArrayElementIndices: SelectedFormArrayElement[], masterRowIndex: number, areSelectedSubrowsValid: boolean}>();
+  @Input() onMainRowSelected: Observable<SelectedMasterRow> =
+    new Observable<SelectedMasterRow>();
+  
+  @Input() rowSelectionFormControlName = '';
+  
+  @Output() onSelectSubrow = new EventEmitter();
 
   @Output() onFormUpdate = new EventEmitter<any[]>();
-
-  selection = new SelectionModel<T>(true, []);
-
-  selectedFormArrayElementIndices: SelectedFormArrayElement[] = [];
-  selectedFormArrayElements: T[] = [];
-
-  subrowSelectionHasChanged: boolean = false;
   
   public innerDisplayColumnsProps: string[] = [];
 
-  public subrowDataSource: T[] = [];
+  matTableDataSource: MatTableDataSource<AbstractControl> = new MatTableDataSource<AbstractControl>([]);
 
   onChangeSubscription: Subscription | undefined;
 
@@ -78,40 +73,21 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
 
   public subrowGroup: FormGroup = this.formBuilder.group({})
 
-  constructor(private formBuilder: FormBuilder, public dataGridHelperService: DataGridHelperService<T>) {
+  constructor(
+    private formBuilder: FormBuilder,
+    public dataGridHelperService: DataGridHelperService<T>,
+    public rowSelectionService: RowSelectionService) {
   }
 
   ngOnInit() {
-    this.subrowFormArray.valueChanges.subscribe(() => {
-      this.onFormUpdate.emit(this.subrowFormArray.value);
-      if (this.subrowSelection && this.subrowSelectionHasChanged && this.subrowFormArray.valid) {
-        const areSelectedSubrowsValid = this.areSelectedSubrowsValid();
-        this.onSelectSubrow.emit({ 
-          selectedFormArrayElementIndices: this.selectedFormArrayElementIndices,
-          masterRowIndex: this.masterRowIndex,
-          areSelectedSubrowsValid: areSelectedSubrowsValid
-        });
-      }
-    });
-
     if (this.subrowSelection) {
-      this.selection.changed.subscribe((x) => {
-        this.subrowSelectionHasChanged = true;
-        const areSelectedSubrowsValid = this.areSelectedSubrowsValid();
-        this.onSelectSubrow.emit({ 
-          selectedFormArrayElementIndices: this.selectedFormArrayElementIndices,
-          masterRowIndex: this.masterRowIndex,
-          areSelectedSubrowsValid: areSelectedSubrowsValid
-        });
-      });
-
       //TODO: set subscription variable and unsubscribe it onDestroy
-      this.onMainRowSelected.subscribe((onMainRowSelectedObj: { isMainRowSelected: boolean, masterRowIndex: number | null }) => {
-        if (onMainRowSelectedObj.masterRowIndex === this.masterRowIndex || onMainRowSelectedObj.masterRowIndex == null) {
-          if (!onMainRowSelectedObj.isMainRowSelected) {
-            this.clearSelectionForAll();
-          } else if (onMainRowSelectedObj.isMainRowSelected) {
-            this.selectAllSubrows();
+      this.onMainRowSelected.subscribe((onMainRowSelectedObj: SelectedMasterRow) => {
+        if (onMainRowSelectedObj.masterRow === this.masterRow || onMainRowSelectedObj.masterRow === undefined) {
+          if (onMainRowSelectedObj.isMainRowSelected) {
+            this.selectAllRows();
+          } else {
+            this.rowSelectionService.clearSelectedRows(this.subrowFormArray.controls, this.rowSelectionFormControlName);
           }
         }
       })
@@ -129,52 +105,46 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
     return Object.keys(arrayFirstElement);
   }
 
-  toggleRowSelection(row: any, rowIndex: number) {
-    const isSelected = this.selection.isSelected(row);
+  toggleRowSelection(row: FormGroup) {
+    this.rowSelectionService.toggleRow(row, this.rowSelectionFormControlName);
+    this.onSelectSubrow.emit();
+  }
 
-    if (!isSelected && !this.selectedFormArrayElementIndices.some(x => x.index === rowIndex)) {
-      const selectedFormArrayElement = new SelectedFormArrayElement(rowIndex, []);
-      this.selectedFormArrayElementIndices.push(selectedFormArrayElement);
-    } else if (isSelected && this.selectedFormArrayElementIndices.some(x => x.index === rowIndex)) {
-      this.selectedFormArrayElementIndices = this.selectedFormArrayElementIndices.filter(e => e.index !== rowIndex);
-    }
+  getSelectedFormArrayElements() {
+    return this.rowSelectionService.getSelectedRows(this.matTableDataSource.data, this.rowSelectionFormControlName);
+  }
 
-    this.selection.toggle(row);
+  getSelectedDisplayValue(row: AbstractControl, columnName: string) {
+    return this.dataGridHelperService.getSelectedDisplayValue(row.get(columnName)?.value, columnName, this.selectInnerColumnMappingModels);
+  }
+
+  getOptionsForColumn(columnName: string) {
+    return this.dataGridHelperService.getOptionsForColumn(columnName, this.selectInnerColumnMappingModels)
   }
 
   /** The label for the checkbox on the passed row */
-  checkboxLabel(row?: T, rowIndex?: number): string {
+  checkboxLabel(row?: AbstractControl, rowIndex?: number): string {
     if (!row) {
       return '';
     }
 
-    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${rowIndex ?? 0 + 1}`;
+    return `${this.rowSelectionService.isRowSelected(row, this.rowSelectionFormControlName) ? 'deselect' : 'select'} row ${rowIndex ?? 0 + 1}`;
   }
 
-  onSubrowSelectionChange(event: any, row: T, rowIndex: number) {
-    return event ? this.toggleRowSelection(row, rowIndex) : null;
+  onSubrowSelectionChange(event: any, row: FormGroup): any {
+    return event ? this.toggleRowSelection(row) : null;
   }
 
-  selectAllSubrows() {
-    this.selectedFormArrayElementIndices = this.buildMarkedSelectedFormArrayElements();
-    this.selection.select(...this.subrowDataSource);
+  isRowSelected(row: AbstractControl): boolean {
+    return this.rowSelectionService.isRowSelected(row, this.rowSelectionFormControlName);
   }
 
-  clearSelectionForAll() {
-    this.selectedFormArrayElementIndices = [];
-    this.selection.clear();
+  areSelectedRowsValid(): boolean {
+    return !this.rowSelectionService.getSelectedRows(this.matTableDataSource.data, this.rowSelectionFormControlName)?.some(r => r.invalid);
   }
 
-  buildMarkedSelectedFormArrayElements(): SelectedFormArrayElement[] {
-    let selectedFormArrayElementIndices: SelectedFormArrayElement[] = [];
-
-    this.subrowFormArray.value.forEach((el: T, currentIndex: number) => {
-      let selectedFormArrayElement = new SelectedFormArrayElement(currentIndex, []);
-
-      selectedFormArrayElementIndices.push(selectedFormArrayElement);
-    });
-
-    return selectedFormArrayElementIndices;
+  selectAllRows() {
+    this.rowSelectionService.selectRows(this.matTableDataSource.data, this.rowSelectionFormControlName);
   }
 
   buildDisplayColumns(arr: T[]) {
@@ -204,12 +174,8 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
     });
     
     const arrayElementFormGroup = this.formBuilder.group(arrayElementFormGroupObj);
-    return arrayElementFormGroup;
-  }
 
-  areSelectedSubrowsValid(): boolean {
-    const areValid = !this.selectedFormArrayElementIndices.some(el => this.subrowFormArray.at(el.index).invalid)
-    return areValid;
+    return arrayElementFormGroup;
   }
 
   //Required by the signature of: ControlValueAccessor
@@ -231,7 +197,8 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
     
     this.buildDisplayColumns(arr);
 
-    this.subrowDataSource = arr;
+    // this.subrowDataSource = arr;
+    this.matTableDataSource = new MatTableDataSource<AbstractControl>(this.subrowFormArray.controls);
 	}
 
   //Required by the signature of: ControlValueAccessor

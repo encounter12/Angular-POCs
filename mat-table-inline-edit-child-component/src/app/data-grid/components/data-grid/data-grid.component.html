@@ -14,8 +14,8 @@
             <th mat-header-cell *matHeaderCellDef>
                 <mat-checkbox
                     (change)="onMasterToggleSelectionChange($event)"
-                    [checked]="selection.hasValue() && isAllSelected()"
-                    [indeterminate]="selection.hasValue() && !isAllSelected()"
+                    [checked]="isAllSelected()"
+                    [indeterminate]="hasSelectedRow() && !isAllSelected()"
                     [aria-label]="checkboxLabel()">
                 </mat-checkbox>
             </th>
@@ -23,7 +23,7 @@
                 <mat-checkbox
                     (click)="$event.stopPropagation()"
                     (change)="onRowSelectionChange($event, row, rowIndex)"
-                    [checked]="selection.isSelected(row)"
+                    [checked]="isRowSelected(row)"
                     [aria-label]="checkboxLabel(row, rowIndex)">
                 </mat-checkbox>
             </td>
@@ -47,7 +47,7 @@
                         </mat-checkbox>
                         <ng-container
                             *ngSwitchCase="'select'">
-                            {{ dataGridHelperService.getSelectedDisplayValue(row[displayCol.name], displayCol.name, selectColumnMappingModels) }}
+                            {{ dataGridHelperService.getSelectedDisplayValue(row.get(displayCol.name)?.value, displayCol.name, selectColumnMappingModels) }}
                         </ng-container>
                     </ng-container>
                     <ng-container [ngSwitch]="displayCol.propertyType" *ngIf="displayCol.isEditable">
@@ -93,9 +93,10 @@
                             [subrowArrayPropName]="subrowArrayPropName"
                             [selectInnerColumnMappingModels]="selectInnerColumnMappingModels"
                             [subrowSelection]="subrowSelection"
-                            [masterRowIndex]="rowIndex"
+                            [masterRow]="rowElement"
                             [onMainRowSelected]="mainRowSelectedObj"
-                            (onSelectSubrow)="toggleSubrowSelection($event)">
+                            [rowSelectionFormControlName]="rowSelectionFormControlName"
+                            (onSelectSubrow)="toggleSubrowSelection(rowElement)">
                         </app-row-details>
                 </div>
             </td>
