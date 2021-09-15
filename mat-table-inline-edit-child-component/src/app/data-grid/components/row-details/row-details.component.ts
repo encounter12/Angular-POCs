@@ -83,7 +83,7 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
     if (this.subrowSelection) {
       //TODO: set subscription variable and unsubscribe it onDestroy
       this.onMainRowSelected.subscribe((onMainRowSelectedObj: SelectedMasterRow) => {
-        if (onMainRowSelectedObj.masterRow === this.masterRow || onMainRowSelectedObj.masterRow === undefined) {
+        if (onMainRowSelectedObj.masterRow === this.masterRow || onMainRowSelectedObj.isMasterToggle) {
           if (onMainRowSelectedObj.isMainRowSelected) {
             this.selectAllRows();
           } else {

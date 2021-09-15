@@ -13,7 +13,7 @@ import { DataGridHelperService } from '../../helpers/datagrid-helper-service';
 import { SelectColumnMappingModel } from '../../models/select-models';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 
-import { RowSelectionType, SelectedMasterRow } from '../../models/selected-master-row';
+import { SelectedMasterRow } from '../../models/selected-master-row';
 import { RowSelectionService } from '../../helpers/row-selection-service';
 
 @Component({
@@ -210,7 +210,7 @@ export class DataGridComponent<T> implements OnInit {
       const selectedMasterRow: SelectedMasterRow = {
         isMainRowSelected: false,
         masterRow: undefined,
-        selectionType: RowSelectionType.allRowsDeselected
+        isMasterToggle: true
       };
 
       this.mainRowSelectedObj.next(selectedMasterRow);
@@ -222,7 +222,7 @@ export class DataGridComponent<T> implements OnInit {
     const selectedMasterRow: SelectedMasterRow = {
       isMainRowSelected: true,
       masterRow: undefined,
-      selectionType: RowSelectionType.allRowsSelected 
+      isMasterToggle: true
     };
 
     this.mainRowSelectedObj.next(selectedMasterRow);
@@ -316,7 +316,7 @@ export class DataGridComponent<T> implements OnInit {
     const selectedMasterRow: SelectedMasterRow = {
       isMainRowSelected: isSelected,
       masterRow: row,
-      selectionType: RowSelectionType.allRowsDeselected
+      isMasterToggle: false
     };
 
     this.mainRowSelectedObj.next(selectedMasterRow);
