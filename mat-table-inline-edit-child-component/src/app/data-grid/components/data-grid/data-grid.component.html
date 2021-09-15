@@ -112,5 +112,6 @@
         </tr>
         <tr mat-row *matRowDef="let row; columns: [expandedDetailFormControlName]" class="detail-row" ></tr>
     </table>
+    <mat-paginator *ngIf="hasPagination" [pageSizeOptions]="pageSizeOptions" aria-label="Select page of periodic elements"></mat-paginator>
     <button *ngIf="isFormEditable" mat-raised-button type="submit" color="primary" class="submit-button">Submit</button>
 </form>

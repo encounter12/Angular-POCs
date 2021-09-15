@@ -1,7 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, AbstractControl } from '@angular/forms';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
 
 import { Observable } from 'rxjs';
 import { isObservable } from "rxjs";
@@ -28,7 +29,7 @@ import { RowSelectionService } from '../../helpers/row-selection-service';
     ]),
   ]
 })
-export class DataGridComponent<T> implements OnInit {
+export class DataGridComponent<T> implements OnInit, AfterViewInit {
   @Input() displayColumns: ColumnHeader[] = [];
   @Input() innerDisplayColumns: ColumnHeader[] = [];
 
@@ -40,6 +41,8 @@ export class DataGridComponent<T> implements OnInit {
   @Input() selectInnerColumnMappingModels: SelectColumnMappingModel[] = [];
 
   @Input() hasFilter = false;
+  @Input() hasPagination = true;
+  @Input() pageSizeOptions: number[] = [5, 10, 25, 50, 100];
 
   matTableDataSource: MatTableDataSource<AbstractControl> = new MatTableDataSource<AbstractControl>([]);
 
@@ -62,6 +65,8 @@ export class DataGridComponent<T> implements OnInit {
   expandedElement: FormGroup | null | undefined;
 
   isFormEditable = false;
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator | null;
 
   get selectedFormArrayElements(): T[] {
     let selectedElements: T[] = [];
@@ -104,6 +109,12 @@ export class DataGridComponent<T> implements OnInit {
       });
     } else {
       this.initializeMatTable(this.dataSource);
+    }
+  }
+
+  ngAfterViewInit() {
+    if (this.hasPagination) {
+      this.matTableDataSource.paginator = this.paginator; 
     }
   }
 
@@ -369,5 +380,9 @@ export class DataGridComponent<T> implements OnInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.matTableDataSource.filter = filterValue.trim().toLowerCase();
+
+    if (this.hasPagination && this.matTableDataSource.paginator) {
+      this.matTableDataSource.paginator.firstPage();
+    }
   }
 }
