@@ -176,6 +176,36 @@ export const ELEMENT_DATA: PeriodicElement[] = [
     isGas: false,
     discoveredOn: new Date('1998-11-17'),
     isotopes: []
+  },
+  {
+    position: 4,
+    name: 'Beryllium',
+    weight: 9.012,
+    isGas: false,
+    discoveredOn: new Date('1942-03-18'),
+    classificationId: 1,
+    isotopes: [
+    {
+      name: 'Be-6',
+      protons: 4, 
+      neutrons: 2,
+      discoveredOn: new Date('1923-08-15'),
+      classificationId: 2
+    },
+    {
+      name: 'Be-8',
+      protons: 4, 
+      neutrons: 4,
+      discoveredOn: new Date('1965-07-27'),
+      classificationId: 2
+    },
+    {
+      name: 'Be-9',
+      protons: 4, 
+      neutrons: 5,
+      discoveredOn: new Date('2002-01-09'),
+      classificationId: 3
+    }]
   }
 ];
 
