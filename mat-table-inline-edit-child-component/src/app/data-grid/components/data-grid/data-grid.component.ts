@@ -3,6 +3,7 @@ import { FormArray, FormBuilder, FormControl, FormGroup, AbstractControl } from 
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 
 import { Observable } from 'rxjs';
 import { isObservable } from "rxjs";
@@ -67,6 +68,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
   isFormEditable = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator | null;
+  @ViewChild(MatSort) sort!: MatSort;
 
   get selectedFormArrayElements(): T[] {
     let selectedElements: T[] = [];
@@ -114,8 +116,24 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     if (this.hasPagination) {
-      this.matTableDataSource.paginator = this.paginator; 
+      this.matTableDataSource.paginator = this.paginator;
     }
+
+    this.matTableDataSource.sort = this.sort;
+
+    this.matTableDataSource.sortData = (data: AbstractControl[], sort: MatSort) => {
+      const factor =
+        sort.direction === "asc" ? 1 : sort.direction === "desc" ? -1 : 0;
+
+      if (factor) {
+        data = data.sort((a: AbstractControl, b: AbstractControl) => {
+          const aValue = a.get(sort.active) ? a.get(sort.active)?.value : null;
+          const bValue = a.get(sort.active) ? b.get(sort.active)?.value : null;
+          return aValue > bValue ? factor : aValue < bValue ? -factor : 0;
+        });
+      }
+      return data;
+    };
   }
 
   initializeMatTable(data: T[]) {

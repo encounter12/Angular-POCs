@@ -8,7 +8,8 @@
         [dataSource]="matTableDataSource"
         class="mat-elevation-z8"
         formArrayName="parentFormFormArray"
-        multiTemplateDataRows>
+        multiTemplateDataRows
+        matSort>
         
         <ng-container matColumnDef="select" *ngIf="rowSelection">
             <th mat-header-cell *matHeaderCellDef>
@@ -30,7 +31,7 @@
         </ng-container>
         
         <ng-container matColumnDef="{{displayCol.name}}" *ngFor="let displayCol of displayColumns">
-            <th mat-header-cell *matHeaderCellDef [hidden]="!displayCol.isVisible">{{displayCol.displayName}}</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header [hidden]="!displayCol.isVisible">{{displayCol.displayName}}</th>
             <td
                 mat-cell
                 *matCellDef="let row; let rowIndex = dataIndex"
