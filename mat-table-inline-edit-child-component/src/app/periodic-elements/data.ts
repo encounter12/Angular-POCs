@@ -224,10 +224,160 @@ export const ELEMENT_DATA: PeriodicElement[] = [
     },
     {
       name: 'B-11',
-      protons: 5, 
+      protons: 5,
       neutrons: 6,
       discoveredOn: new Date('1978-03-08'),
       classificationId: 2
+    }]
+  },
+  {
+    position: 6,
+    name: 'Carbon',
+    weight: 12.0096,
+    isGas: false,
+    discoveredOn: new Date('1864-09-15'),
+    classificationId: 2,
+    isotopes: [
+    {
+      name: 'C-11',
+      protons: 6, 
+      neutrons: 5,
+      discoveredOn: new Date('1899-04-15'),
+      classificationId: 1
+    },
+    {
+      name: 'C-12',
+      protons: 6,
+      neutrons: 6,
+      discoveredOn: new Date('1923-11-14'),
+      classificationId: 1
+    },
+    {
+      name: 'C-13',
+      protons: 6,
+      neutrons: 7,
+      discoveredOn: new Date('1941-02-19'),
+      classificationId: 1
+    },
+    {
+      name: 'C-14',
+      protons: 6,
+      neutrons: 8,
+      discoveredOn: new Date('1888-11-11'),
+      classificationId: 2
+    }]
+  },
+  {
+    position: 7,
+    name: 'Nitrogen',
+    weight: 14.006,
+    isGas: true,
+    discoveredOn: new Date('1911-08-23'),
+    classificationId: 4,
+    isotopes: [
+    {
+      name: 'N-13',
+      protons: 7, 
+      neutrons: 6,
+      discoveredOn: new Date('1918-02-22'),
+      classificationId: 1
+    },
+    {
+      name: 'N-14',
+      protons: 7,
+      neutrons: 7,
+      discoveredOn: new Date('1909-03-19'),
+      classificationId: 1
+    },
+    {
+      name: 'N-15',
+      protons: 7,
+      neutrons: 8,
+      discoveredOn: new Date('1922-05-23'),
+      classificationId: 1
+    }]
+  },
+  {
+    position: 8,
+    name: 'Oxygen',
+    weight: 15.999,
+    isGas: true,
+    discoveredOn: new Date('1893-02-23'),
+    classificationId: 4,
+    isotopes: [
+    {
+      name: 'O-16',
+      protons: 8, 
+      neutrons: 8,
+      discoveredOn: new Date('1903-06-14'),
+      classificationId: 1
+    },
+    {
+      name: 'O-17',
+      protons: 8,
+      neutrons: 9,
+      discoveredOn: new Date('1901-07-30'),
+      classificationId: 1
+    },
+    {
+      name: 'O-18',
+      protons: 8,
+      neutrons: 10,
+      discoveredOn: new Date('1932-02-18'),
+      classificationId: 1
+    }]
+  },
+  {
+    position: 9,
+    name: 'Fluorine',
+    weight: 18.998,
+    isGas: true,
+    discoveredOn: new Date('1843-09-21'),
+    classificationId: 3,
+    isotopes: [
+    {
+      name: 'F-18',
+      protons: 9, 
+      neutrons: 9,
+      discoveredOn: new Date('1932-04-01'),
+      classificationId: 1
+    },
+    {
+      name: 'F-19',
+      protons: 9,
+      neutrons: 10,
+      discoveredOn: new Date('1956-01-06'),
+      classificationId: 1
+    }]
+  },
+  {
+    position: 10,
+    name: 'Neon',
+    weight: 20.1797,
+    isGas: true,
+    discoveredOn: new Date('1872-11-17'),
+    classificationId: 3,
+    isotopes: [
+    {
+      name: 'Ne-20',
+      protons: 10, 
+      neutrons: 10,
+      discoveredOn: new Date('1921-02-16'),
+      classificationId: 1
+    },
+    {
+      name: 'Ne-21',
+      protons: 10,
+      neutrons: 11,
+      discoveredOn: new Date('1901-01-01'),
+      classificationId: 1
+    },
+    {
+      name: 'Ne-22',
+      protons: 10,
+      neutrons: 12,
+      discoveredOn: new Date('1977-02-12'),
+      classificationId: 1
     }]
   }
 ];
