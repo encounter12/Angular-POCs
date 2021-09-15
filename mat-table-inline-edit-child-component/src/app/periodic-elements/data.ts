@@ -206,6 +206,29 @@ export const ELEMENT_DATA: PeriodicElement[] = [
       discoveredOn: new Date('2002-01-09'),
       classificationId: 3
     }]
+  },
+  {
+    position: 5,
+    name: 'Boron',
+    weight: 10.806,
+    isGas: false,
+    discoveredOn: new Date('1942-03-18'),
+    classificationId: 1,
+    isotopes: [
+    {
+      name: 'B-10',
+      protons: 5, 
+      neutrons: 5,
+      discoveredOn: new Date('1915-11-09'),
+      classificationId: 2
+    },
+    {
+      name: 'B-11',
+      protons: 5, 
+      neutrons: 6,
+      discoveredOn: new Date('1978-03-08'),
+      classificationId: 2
+    }]
   }
 ];
 
