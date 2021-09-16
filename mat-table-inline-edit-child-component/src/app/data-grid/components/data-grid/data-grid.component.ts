@@ -171,9 +171,9 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
         return formArrayElementValue;
       });
 
-      const copiedElements = this.removeRowSelectionProperties(elements);
+      const elementsWithoutSelectionProperties = this.removeRowSelectionProperties(elements);
 
-      this.onFormUpdate.emit(copiedElements);
+      this.onFormUpdate.emit(elementsWithoutSelectionProperties);
       if (this.rowSelection && this.parentFormGroup.valid) {
         this.onSelectRow.emit(this.selectedFormArrayElements);
       }
@@ -234,8 +234,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
   /** Selects all rows if they are not all selected; otherwise clear selection. */
   masterToggleRowSelection() {
     if (this.isAllSelected()) {
-      this.rowSelectionService.clearSelectedRows(this.parentFormFormArray.controls, this.rowSelectionFormControlName);
-
+      this.clearAllRows();
       const selectedMasterRow: SelectedMasterRow = {
         isMainRowSelected: false,
         masterRow: undefined,
@@ -246,7 +245,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
       return;
     }
 
-    this.selectAllRows();
+    this.selectAllRowsOnPage();
 
     const selectedMasterRow: SelectedMasterRow = {
       isMainRowSelected: true,
@@ -255,6 +254,11 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
     };
 
     this.mainRowSelectedObj.next(selectedMasterRow);
+  }
+
+  clearAllRows() {
+    const rowsOnPage = this.getCurrentPageRows();
+    this.rowSelectionService.clearSelectedRows(rowsOnPage, this.rowSelectionFormControlName);
   }
 
   onRowSelectionChange(event: MatCheckboxChange, row: FormGroup, rowIndex: number) {
@@ -321,9 +325,24 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
   }
 
   isAllSelected() {
-    const numSelected = this.rowSelectionService.getAllSelectedRowsCount(this.matTableDataSource.data, this.rowSelectionFormControlName);
-    const numRows = this.matTableDataSource.data.length;
-    return numSelected === numRows;
+    let pageSize = this.matTableDataSource.data.length ?? 0;
+
+    if (this.hasPagination) {
+      pageSize = this.matTableDataSource.paginator?.pageSize ?? 10;
+    }
+
+    const curentPageRows = this.getCurrentPageRows();
+    const areAllRowsOnPageSelected = this.rowSelectionService.areAllRowsSelected(curentPageRows, this.rowSelectionFormControlName);
+    return areAllRowsOnPageSelected;
+  }
+
+  getCurrentPageRows() {
+    return this.matTableDataSource.connect().value;
+  }
+
+  selectAllRowsOnPage() {
+    const rowsOnPage = this.getCurrentPageRows();
+    this.rowSelectionService.selectRows(rowsOnPage, this.rowSelectionFormControlName);
   }
 
   getSelectedDisplayValue(row: AbstractControl, columnName: string): any {
@@ -340,7 +359,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
 
   toggleRowSelection(row: FormGroup) {
     this.rowSelectionService.toggleRow(row, this.rowSelectionFormControlName);
-    let isSelected: boolean = this.rowSelectionService.isRowSelected(row, this.rowSelectionFormControlName);
+    let isSelected: boolean = this.isRowSelected(row);
 
     const selectedMasterRow: SelectedMasterRow = {
       isMainRowSelected: isSelected,
@@ -353,7 +372,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
 
   toggleSubrowSelection(row: FormGroup) {
     if (this.getSelectedSubrowsCount(row) > 0 &&
-      !this.rowSelectionService.isRowSelected(row, this.rowSelectionFormControlName)) {
+      !this.isRowSelected(row)) {
         this.rowSelectionService.selectRow(row, this.rowSelectionFormControlName);
     }
   }
@@ -375,7 +394,6 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
 
   toggleExpandRow(rowElement: FormGroup) {
     const subrows = rowElement?.get(this.expandedDetailFormControlName)?.value?.[this.expandedDetailFormControlName];
-
     subrows?.length ? (this.expandedElement = this.expandedElement === rowElement ? null : rowElement) : null;
 
     this.changeDetectorRef.detectChanges();
@@ -388,11 +406,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
   }
 
   areSelectedRowsValid(): boolean {
-    return !this.rowSelectionService.getSelectedRows(this.matTableDataSource.data, this.rowSelectionFormControlName)?.some(r => r.invalid);
-  }
-
-  selectAllRows() {
-    this.rowSelectionService.selectRows(this.matTableDataSource.data, this.rowSelectionFormControlName);
+    return this.rowSelectionService.areRowsValid(this.matTableDataSource.data, this.rowSelectionFormControlName);
   }
 
   applyFilter(event: Event) {

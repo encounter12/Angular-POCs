@@ -140,7 +140,7 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
   }
 
   areSelectedRowsValid(): boolean {
-    return !this.rowSelectionService.getSelectedRows(this.matTableDataSource.data, this.rowSelectionFormControlName)?.some(r => r.invalid);
+    return this.rowSelectionService.areRowsValid(this.matTableDataSource.data, this.rowSelectionFormControlName);
   }
 
   selectAllRows() {

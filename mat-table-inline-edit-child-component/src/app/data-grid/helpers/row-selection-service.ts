@@ -18,7 +18,7 @@ export class RowSelectionService {
             const isRowSelected = (control.get(formControlName)?.value as boolean);
 
             if (isRowSelected) {
-            control.get(formControlName)?.setValue(false);
+                control.get(formControlName)?.setValue(false);
             }
         }
     }
@@ -31,10 +31,6 @@ export class RowSelectionService {
         row.get(formControlName)?.setValue(true);
     }
 
-    isRowSelected(row: AbstractControl, formControlName: string) {
-        return row.get(formControlName)?.value;
-    }
-
     toggleRow(row: AbstractControl, formControlName: string) {
         const isRowSelected = row.get(formControlName)?.value as boolean;
 
@@ -45,11 +41,19 @@ export class RowSelectionService {
         }
     }
 
+    isRowSelected(row: AbstractControl, formControlName: string) {
+        return row.get(formControlName)?.value;
+    }
+
     hasSelectedRow(rows: AbstractControl[], formControlName: string) {
         return rows.filter((row: AbstractControl) => row.get(formControlName)?.value).length > 0;
     }
 
-    getAllSelectedRowsCount(rows: AbstractControl[], formControlName: string) {
-        return rows.filter((row: AbstractControl) => row.get(formControlName)?.value).length;
+    areAllRowsSelected(rows: AbstractControl[], formControlName: string): boolean {
+        return !rows.some((row: AbstractControl) => !row?.get(formControlName)?.value);
+    }
+
+    areRowsValid(rows: AbstractControl[], formControlName: string): boolean {
+        return !rows.some((row: AbstractControl) => row.get(formControlName)?.invalid);
     }
 }
