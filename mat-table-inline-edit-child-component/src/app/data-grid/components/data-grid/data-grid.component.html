@@ -72,8 +72,10 @@
                                 [formControlName]="displayCol.name"
                                 placeholder="Select from values"
                                 (click)="$event.stopPropagation()">
-                                    <mat-option *ngFor="let option of dataGridHelperService.getOptionsForColumn(displayCol.name, selectColumnMappingModels)" [value]="option.key">
-                                    {{ option.displayValue }}
+                                    <mat-option
+                                        *ngFor="let option of dataGridHelperService.getOptionsForColumn(displayCol.name, selectColumnMappingModels)"
+                                        [value]="option.key">
+                                            {{ option.displayValue }}
                                     </mat-option>
                             </mat-select>
                         </mat-form-field>
@@ -94,6 +96,7 @@
                             [innerDisplayColumns]="innerDisplayColumns"
                             [subrowArrayPropName]="subrowArrayPropName"
                             [selectInnerColumnMappingModels]="selectInnerColumnMappingModels"
+                            [isRowSelectionEnabled]="rowSelection"
                             [subrowSelection]="subrowSelection"
                             [masterRow]="rowElement"
                             [onMainRowSelected]="mainRowSelectedObj"

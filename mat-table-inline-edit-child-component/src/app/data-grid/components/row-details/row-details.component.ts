@@ -45,6 +45,8 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
 
   @Input() selectInnerColumnMappingModels: SelectColumnMappingModel[] = [];
 
+  @Input() isRowSelectionEnabled: boolean = false;
+
   @Input() subrowSelection: boolean = false;
 
   @Input() masterRow!: AbstractControl;
@@ -80,7 +82,7 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
   }
 
   ngOnInit() {
-    if (this.subrowSelection) {
+    if (this.isRowSelectionEnabled) {
       //TODO: set subscription variable and unsubscribe it onDestroy
       this.onMainRowSelected.subscribe((onMainRowSelectedObj: SelectedMasterRow) => {
         if (onMainRowSelectedObj.masterRow === this.masterRow || onMainRowSelectedObj.isMasterToggle) {

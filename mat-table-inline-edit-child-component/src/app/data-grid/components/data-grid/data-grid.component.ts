@@ -210,9 +210,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
           delete el[this.rowSelectionFormControlName];
           return el;
         });
-      }
 
-      if (this.subrowSelection) {
         copiedElements = copiedElements.map((masterArrayElement: any) => {
           masterArrayElement[this.expandedDetailFormControlName] = Array.from(masterArrayElement[this.expandedDetailFormControlName])
             .map((expandedDetailArrayElement: any) => {
@@ -314,10 +312,10 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
   private buildFormControlArrayObject(key: string, propValue: any[]): FormControl {
     const subrowArrayObj: any = {};
 
-    if (this.subrowSelection) {
+    if (this.rowSelection) {
       for (let subrowElement of propValue) {
         subrowElement[this.rowSelectionFormControlName] = false;
-      }
+      } 
     }
 
     subrowArrayObj[key] = propValue;
