@@ -10,6 +10,7 @@ import {
   PERIODIC_ELEMENTS_SELECT_MODELS,
   PERIODIC_ELEMENTS_INNER_SELECT_MODELS
 } from './periodic-elements/data';
+import { ThrowStmt } from '@angular/compiler';
 
 @Component({
   selector: 'app-root',
@@ -30,6 +31,8 @@ export class AppComponent {
   periodicElementsSelectModels = PERIODIC_ELEMENTS_SELECT_MODELS;
   periodicElementsInnerSelectModels = PERIODIC_ELEMENTS_INNER_SELECT_MODELS;
 
+  onRowDeleted: PeriodicElement | undefined;
+
   constructor() {}
 
   printUpdatedForm(updatedForm: any[]) {
@@ -42,5 +45,15 @@ export class AppComponent {
 
   onSubmit(submitted: any[]) {
     this.submittedElements = submitted;
+  }
+
+  addRow() {
+    console.log('added new row');
+  }
+
+  deleteRow(elementForDeletion: PeriodicElement) {
+    console.log(elementForDeletion);
+    this.dataSource = this.dataSource.filter(x => x.position !== elementForDeletion.position);
+    this.onRowDeleted = elementForDeletion;
   }
 }

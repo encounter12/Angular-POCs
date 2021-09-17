@@ -9,9 +9,12 @@
   [hasFilter]="true"
   [hasPagination]="true"
   [pageSizeOptions]="[5, 10, 25, 50, 100]"
+  [onRowDeleted]="onRowDeleted"
   (onFormUpdate)="printUpdatedForm($event)"
   (onSelectRow)="onSelectRow($event)"
-  (onSubmit)="onSubmit($event)">
+  (onSubmit)="onSubmit($event)"
+  (onRowAddition)="addRow()"
+  (onRowDeletion)="deleteRow($event)">
 </data-grid>
 <p>
   {{ updatedForm | json }}
