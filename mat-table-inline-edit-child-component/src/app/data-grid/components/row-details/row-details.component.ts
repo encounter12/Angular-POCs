@@ -166,6 +166,8 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
     if (this.subrowSelection) {
       this.innerDisplayColumnsProps.unshift('select');
     }
+
+    this.innerDisplayColumnsProps.push('actions');
   }
 
   buildArrayElementFormGroup(element: T) {
@@ -178,6 +180,14 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
     const arrayElementFormGroup = this.formBuilder.group(arrayElementFormGroupObj);
 
     return arrayElementFormGroup;
+  }
+
+  addNewSubrow() {
+    console.log('added new subrow');
+  }
+
+  deleteSubRow(row: FormGroup) {
+    console.log('subrow deleted');
   }
 
   //Required by the signature of: ControlValueAccessor

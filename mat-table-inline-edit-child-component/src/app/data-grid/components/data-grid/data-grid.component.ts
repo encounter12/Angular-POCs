@@ -58,6 +58,8 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit, OnChanges {
   @Input() hasPagination = true;
   @Input() pageSizeOptions: number[] = [5, 10, 25, 50, 100];
 
+  @Input() hasSorting = false;
+
   @Input()
   onRowDeleted: T | undefined;
 
@@ -156,14 +158,20 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngAfterViewInit() {
-    this.setPaginationAndSorting();
-  }
-
-  setPaginationAndSorting() {
     if (this.hasPagination) {
-      this.matTableDataSource.paginator = this.paginator;
+      this.setPagination();
     }
 
+    if (this.hasSorting) {
+      this.setSorting();
+    }
+  }
+
+  setPagination() {
+    this.matTableDataSource.paginator = this.paginator;
+  }
+
+  setSorting() {
     this.matTableDataSource.sort = this.sort;
 
     this.matTableDataSource.sortData = (data: AbstractControl[], sort: MatSort) => {
@@ -446,7 +454,13 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (!changes.onRowDeleted.firstChange) {
       this.initializeMatTable(this.dataSource as T[]);
-      this.setPaginationAndSorting();
+      if (this.hasPagination) {
+        this.setPagination();
+      }
+  
+      if (this.hasSorting) {
+        this.setSorting();
+      }
     }
   }
 }
