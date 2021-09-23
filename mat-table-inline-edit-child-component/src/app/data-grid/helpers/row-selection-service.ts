@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AbstractControl } from '@angular/forms';
+import { AbstractControl, FormControl } from '@angular/forms';
 
 @Injectable({
   providedIn: 'root',
@@ -7,18 +7,18 @@ import { AbstractControl } from '@angular/forms';
 export class RowSelectionService {
     constructor() {}
 
-    public selectRows(rows: AbstractControl[], formControlName: string) {
+    public selectRows(rows: AbstractControl[], formControlName: string, expandedDetailFormControlName: string | undefined) {
         for (let row of rows) {
-            this.selectRow(row, formControlName);
+            this.selectRow(row, formControlName, expandedDetailFormControlName);
         }
     }
 
-    clearSelectedRows(rows: AbstractControl[], formControlName: string) {
+    clearSelectedRows(rows: AbstractControl[], formControlName: string, expandedDetailFormControlName: string | undefined) {
         for (let control of rows) {
             const isRowSelected = (control.get(formControlName)?.value as boolean);
 
             if (isRowSelected) {
-                control.get(formControlName)?.setValue(false);
+                this.unselectRow(control,formControlName, expandedDetailFormControlName)
             }
         }
     }
@@ -27,17 +27,63 @@ export class RowSelectionService {
         return rows.filter(x => x.get(formControlName)?.value);
     }
 
-    selectRow(row: AbstractControl, formControlName: string) {
-        row.get(formControlName)?.setValue(true);
+    selectRow(row: AbstractControl, formControlName: string, expandedDetailFormControlName: string | undefined) {
+        const rowSelectFormControl: AbstractControl | null = row.get(formControlName);
+        rowSelectFormControl?.setValue(true);
+
+        if (expandedDetailFormControlName && expandedDetailFormControlName.length > 0) {
+            this.selectExpandedDetailSubrows(row, formControlName, expandedDetailFormControlName);
+        }
     }
 
-    toggleRow(row: AbstractControl, formControlName: string) {
+    unselectRow(row: AbstractControl, formControlName: string, expandedDetailFormControlName: string | undefined) {
+        const rowSelectFormControl = row.get(formControlName);
+        rowSelectFormControl?.setValue(false);
+
+        if (expandedDetailFormControlName && expandedDetailFormControlName.length > 0) {
+            this.unselectExpandedDetailSubrows(row, formControlName, expandedDetailFormControlName);
+        }
+    }
+
+    private selectExpandedDetailSubrows(row: AbstractControl, formControlName: string, expandedDetailFormControlName: string): void {
+        let expandedDetail = row.get(expandedDetailFormControlName) as FormControl;
+
+        let expandedDetailArray = Array.from(expandedDetail?.value[expandedDetailFormControlName]);
+
+        let result = expandedDetailArray?.map((el: any) => {
+            el[formControlName] = true;
+            return el;
+        });
+
+        let expandedDetailObj: any = {};
+        expandedDetailObj[expandedDetailFormControlName] = result;
+
+        expandedDetail.setValue(expandedDetailObj);
+    }
+
+    private unselectExpandedDetailSubrows(row: AbstractControl, formControlName: string, expandedDetailFormControlName: string): void {
+        let expandedDetail = row.get(expandedDetailFormControlName) as FormControl;
+
+        let expandedDetailArray = Array.from(expandedDetail?.value[expandedDetailFormControlName]);
+
+        let result = expandedDetailArray?.map((el: any) => {
+            el[formControlName] = false;
+            return el;
+        })
+
+        let expandedDetailObj: any = {};
+        expandedDetailObj[expandedDetailFormControlName] = result;
+
+        expandedDetail.setValue(expandedDetailObj);
+    }
+
+    toggleRow(row: AbstractControl, formControlName: string, expandedDetailFormControlName: string | undefined) {
         const isRowSelected = row.get(formControlName)?.value as boolean;
 
         if (isRowSelected) {
-            row.get(formControlName)?.setValue(false);
+            this.unselectRow(row, formControlName, expandedDetailFormControlName);
         } else {
-            row.get(formControlName)?.setValue(true);
+            this.selectRow(row, formControlName, expandedDetailFormControlName);
         }
     }
 

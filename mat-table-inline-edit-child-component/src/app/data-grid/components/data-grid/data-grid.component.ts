@@ -6,9 +6,7 @@ import {
   Input,
   Output,
   EventEmitter,
-  ViewChild,
-  OnChanges,
-  SimpleChanges
+  ViewChild
 } from '@angular/core';
 
 import { FormArray, FormBuilder, FormControl, FormGroup, AbstractControl } from '@angular/forms';
@@ -21,14 +19,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 import { isObservable } from "rxjs";
 import { tap } from 'rxjs/operators';
-import { Subject } from 'rxjs';
 
 import { ColumnHeader } from '../../models/column-header';
 import { DataGridHelperService } from '../../helpers/datagrid-helper-service';
 import { SelectColumnMappingModel } from '../../models/select-models';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 
-import { SelectedMasterRow } from '../../models/selected-master-row';
 import { RowSelectionService } from '../../helpers/row-selection-service';
 
 @Component({
@@ -43,11 +39,30 @@ import { RowSelectionService } from '../../helpers/row-selection-service';
     ]),
   ]
 })
-export class DataGridComponent<T> implements OnInit, AfterViewInit, OnChanges {
+export class DataGridComponent<T> implements OnInit, AfterViewInit {
   @Input() displayColumns: ColumnHeader[] = [];
   @Input() innerDisplayColumns: ColumnHeader[] = [];
 
-  @Input() dataSource: Observable<T[]> | T[] = [];
+  private _dataSource: Observable<T[]> | T[] = [];
+    
+  @Input() set dataSource(value: Observable<T[]> | T[]) {
+    this._dataSource = value;
+
+    if (isObservable(this._dataSource)) {
+      this.getDataSource().subscribe((data: T[]) => {
+        this.initializeMatTable(data);
+        this.setPaginationAndSorting();
+      });
+    } else {
+      this.initializeMatTable(this._dataSource);
+      this.setPaginationAndSorting();
+    }
+  }
+
+  public get dataSource(): Observable<T[]> | T[] {
+    return this._dataSource;
+  }
+
   @Input() rowSelection: boolean = false;
   @Input() subrowSelection: boolean = false;
 
@@ -60,21 +75,21 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit, OnChanges {
 
   @Input() hasSorting = false;
 
-  @Input()
-  onRowDeleted: T | undefined;
-
   matTableDataSource: MatTableDataSource<AbstractControl> = new MatTableDataSource<AbstractControl>([]);
-
-  mainRowSelectedObj: Subject<SelectedMasterRow> = new Subject<SelectedMasterRow>();
 
   subrowArrayPropName = 'subrowArray';
   rowSelectionFormControlName = 'dataGridRowSelected';
+  isElementExpandedFormControlName = 'dataGridIsElementExpanded';
 
   @Output() onFormUpdate = new EventEmitter<any[]>();
   @Output() onSelectRow = new EventEmitter<T[]>();
   @Output() onSubmit = new EventEmitter<T[]>();
+  
   @Output() onRowAddition = new EventEmitter();
-  @Output() onRowDeletion = new EventEmitter<any>();
+  @Output() onRowDeletion = new EventEmitter<T>();
+
+  @Output() onSubrowAddition = new EventEmitter<T>();
+  @Output() onSubrowDeletion = new EventEmitter<any>();
 
   expandedDetailFormControlName: string = '';
   columnsProps: string[] = [];
@@ -116,6 +131,8 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit, OnChanges {
 
     if (this.expandedDetailFormControlName?.length > 0 && subrows && subrows.length > 0) {
 
+      delete selectedElement[this.isElementExpandedFormControlName];
+
       let selectedSubrows = subrows;
 
       if (filterSelected) {
@@ -148,13 +165,8 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnInit() {
-    if (isObservable(this.dataSource)) {
-      this.getDataSource().subscribe((data: T[]) => {
-        this.initializeMatTable(data);
-      });
-    } else {
-      this.initializeMatTable(this.dataSource);
-    }
+    this.initializeMatTable(this.dataSource as T[]);
+    this.setPaginationAndSorting();
   }
 
   ngAfterViewInit() {
@@ -214,7 +226,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit, OnChanges {
     }
 
     this.parentFormFormArray.valueChanges.subscribe(() => {
-      const elements = (this.parentFormGroup.get('parentFormFormArray') as FormArray).controls.map((control: AbstractControl) => {
+      const elements = this.parentFormFormArray.controls.map((control: AbstractControl) => {
         let formArrayElementValue = this.transformRowFormControlToObject(control, false);
         return formArrayElementValue;
       });
@@ -259,30 +271,15 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit, OnChanges {
   masterToggleRowSelection() {
     if (this.isAllSelected()) {
       this.clearAllRows();
-      const selectedMasterRow: SelectedMasterRow = {
-        isMainRowSelected: false,
-        masterRow: undefined,
-        isMasterToggle: true
-      };
-
-      this.mainRowSelectedObj.next(selectedMasterRow);
       return;
     }
 
     this.selectAllRowsOnPage();
-
-    const selectedMasterRow: SelectedMasterRow = {
-      isMainRowSelected: true,
-      masterRow: undefined,
-      isMasterToggle: true
-    };
-
-    this.mainRowSelectedObj.next(selectedMasterRow);
   }
 
   clearAllRows() {
     const rowsOnPage = this.getCurrentPageRows();
-    this.rowSelectionService.clearSelectedRows(rowsOnPage, this.rowSelectionFormControlName);
+    this.rowSelectionService.clearSelectedRows(rowsOnPage, this.rowSelectionFormControlName, this.expandedDetailFormControlName);
   }
 
   onRowSelectionChange(event: MatCheckboxChange, row: FormGroup, rowIndex: number) {
@@ -332,6 +329,8 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit, OnChanges {
       arrayElementFormGroup.addControl(this.rowSelectionFormControlName, this.formBuilder.control(false), { emitEvent: false });
     }
 
+    arrayElementFormGroup.addControl(this.isElementExpandedFormControlName, this.formBuilder.control(false), { emitEvent: false });
+
     return arrayElementFormGroup;
   }
 
@@ -366,7 +365,8 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit, OnChanges {
 
   selectAllRowsOnPage() {
     const rowsOnPage = this.getCurrentPageRows();
-    this.rowSelectionService.selectRows(rowsOnPage, this.rowSelectionFormControlName);
+
+    this.rowSelectionService.selectRows(rowsOnPage, this.rowSelectionFormControlName, this.expandedDetailFormControlName);
   }
 
   getSelectedDisplayValue(row: AbstractControl, columnName: string): any {
@@ -382,22 +382,13 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit, OnChanges {
   }
 
   toggleRowSelection(row: FormGroup) {
-    this.rowSelectionService.toggleRow(row, this.rowSelectionFormControlName);
-    let isSelected: boolean = this.isRowSelected(row);
-
-    const selectedMasterRow: SelectedMasterRow = {
-      isMainRowSelected: isSelected,
-      masterRow: row,
-      isMasterToggle: false
-    };
-
-    this.mainRowSelectedObj.next(selectedMasterRow);
+    this.rowSelectionService.toggleRow(row, this.rowSelectionFormControlName, this.expandedDetailFormControlName);
   }
 
   toggleSubrowSelection(row: FormGroup) {
     if (this.getSelectedSubrowsCount(row) > 0 &&
       !this.isRowSelected(row)) {
-        this.rowSelectionService.selectRow(row, this.rowSelectionFormControlName);
+        this.rowSelectionService.selectRow(row, this.rowSelectionFormControlName, this.isElementExpandedFormControlName);
     }
   }
 
@@ -418,9 +409,11 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit, OnChanges {
 
   toggleExpandRow(rowElement: FormGroup) {
     const subrows = rowElement?.get(this.expandedDetailFormControlName)?.value?.[this.expandedDetailFormControlName];
-    subrows?.length ? (this.expandedElement = this.expandedElement === rowElement ? null : rowElement) : null;
+    this.expandedElement = this.expandedElement === rowElement ? null : rowElement;
 
-    this.changeDetectorRef.detectChanges();
+    if (this.expandedElement) {
+      rowElement.get(this.isElementExpandedFormControlName)?.setValue(true);
+    }
   }
 
   submit() {
@@ -451,16 +444,26 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit, OnChanges {
     this.onRowDeletion.emit(transformedRow);
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (!changes.onRowDeleted.firstChange) {
-      this.initializeMatTable(this.dataSource as T[]);
-      if (this.hasPagination) {
-        this.setPagination();
-      }
-  
-      if (this.hasSorting) {
-        this.setSorting();
-      }
+  addNewSubrow(row: FormGroup) {
+    const rowObj = this.transformRowFormControlToObject(row, false);
+    this.onSubrowAddition.emit(rowObj);
+  }
+
+  deleteSubrow(subrow: any, row: FormGroup) {
+    const rowObj = this.transformRowFormControlToObject(row, false);
+    this.onSubrowDeletion.emit({
+      row: rowObj,
+      subrow: subrow
+    });
+  }
+
+  setPaginationAndSorting() {
+    if (this.hasPagination) {
+      this.setPagination();
+    }
+
+    if (this.hasSorting) {
+      this.setSorting();
     }
   }
 }

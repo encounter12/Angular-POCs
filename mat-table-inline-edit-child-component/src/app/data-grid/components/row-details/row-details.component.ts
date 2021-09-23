@@ -11,13 +11,12 @@ import {
   FormArray
 } from '@angular/forms';
 
-import { Observable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { ColumnHeader } from '../../models/column-header';
 import { DataGridHelperService } from '../../helpers/datagrid-helper-service';
 import { SelectColumnMappingModel } from '../../models/select-models';
 
 import { MatTableDataSource } from '@angular/material/table';
-import { SelectedMasterRow } from '../../models/selected-master-row';
 import { RowSelectionService } from '../../helpers/row-selection-service';
 
 @Component({
@@ -37,7 +36,7 @@ import { RowSelectionService } from '../../helpers/row-selection-service';
 		}
 	]
 })
-export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAccessor, Validator {
+export class RowDetailsComponent<T> implements OnDestroy, ControlValueAccessor, Validator {
   
   @Input() innerDisplayColumns: ColumnHeader[] = [];
 
@@ -50,15 +49,15 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
   @Input() subrowSelection: boolean = false;
 
   @Input() masterRow!: AbstractControl;
-
-  @Input() onMainRowSelected: Observable<SelectedMasterRow> =
-    new Observable<SelectedMasterRow>();
   
   @Input() rowSelectionFormControlName = '';
   
   @Output() onSelectSubrow = new EventEmitter();
 
   @Output() onFormUpdate = new EventEmitter<any[]>();
+
+  @Output() onSubrowAddition = new EventEmitter();
+  @Output() onSubrowDeletion = new EventEmitter<T>();
   
   public innerDisplayColumnsProps: string[] = [];
 
@@ -81,21 +80,6 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
     public rowSelectionService: RowSelectionService) {
   }
 
-  ngOnInit() {
-    if (this.isRowSelectionEnabled) {
-      //TODO: set subscription variable and unsubscribe it onDestroy
-      this.onMainRowSelected.subscribe((onMainRowSelectedObj: SelectedMasterRow) => {
-        if (onMainRowSelectedObj.masterRow === this.masterRow || onMainRowSelectedObj.isMasterToggle) {
-          if (onMainRowSelectedObj.isMainRowSelected) {
-            this.selectAllRows();
-          } else {
-            this.rowSelectionService.clearSelectedRows(this.subrowFormArray.controls, this.rowSelectionFormControlName);
-          }
-        }
-      })
-    }
-  }
-
   ngOnDestroy() {
     if (this.onChangeSubscription) {
       this.onChangeSubscription.unsubscribe();
@@ -108,7 +92,7 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
   }
 
   toggleRowSelection(row: FormGroup) {
-    this.rowSelectionService.toggleRow(row, this.rowSelectionFormControlName);
+    this.rowSelectionService.toggleRow(row, this.rowSelectionFormControlName, undefined);
     this.onSelectSubrow.emit();
   }
 
@@ -146,14 +130,13 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
   }
 
   selectAllRows() {
-    this.rowSelectionService.selectRows(this.matTableDataSource.data, this.rowSelectionFormControlName);
+    this.rowSelectionService.selectRows(this.matTableDataSource.data, this.rowSelectionFormControlName, undefined);
   }
 
   buildDisplayColumns(arr: T[]) {
     const firstDataSourceElement = arr[0];
 
     if (this.innerDisplayColumns.length === 0) {
-
       if (firstDataSourceElement) {
         this.innerDisplayColumnsProps = Object.keys(firstDataSourceElement);
 
@@ -183,11 +166,22 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
   }
 
   addNewSubrow() {
-    console.log('added new subrow');
+    this.onSubrowAddition.emit();
   }
 
-  deleteSubRow(row: FormGroup) {
-    console.log('subrow deleted');
+  deleteSubRow(subrow: FormGroup) {
+    const subrowObj = this.transformSubrowFormGroupToObject(subrow);
+    this.onSubrowDeletion.emit(subrowObj);
+  }
+
+  private transformSubrowFormGroupToObject(formGroup: FormGroup): T {
+    let selectedElement = JSON.parse(JSON.stringify(formGroup?.value));
+
+    if (this.subrowSelection) {
+      delete selectedElement[this.rowSelectionFormControlName];
+    }
+
+    return selectedElement;
   }
 
   //Required by the signature of: ControlValueAccessor
@@ -209,7 +203,6 @@ export class RowDetailsComponent<T> implements OnInit, OnDestroy, ControlValueAc
     
     this.buildDisplayColumns(arr);
 
-    // this.subrowDataSource = arr;
     this.matTableDataSource = new MatTableDataSource<AbstractControl>(this.subrowFormArray.controls);
 	}
 

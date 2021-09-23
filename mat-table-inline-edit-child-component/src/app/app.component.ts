@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 
 import { PeriodicElement } from './periodic-elements/models/periodic-element';
 
@@ -8,9 +8,10 @@ import {
   PERIODIC_ELEMENTS_COLUMNS_DATA,
   PERIODIC_ELEMENTS_INNER_COLUMNS_DATA,
   PERIODIC_ELEMENTS_SELECT_MODELS,
-  PERIODIC_ELEMENTS_INNER_SELECT_MODELS
+  PERIODIC_ELEMENTS_INNER_SELECT_MODELS,
+  ELEMENTS_FOR_ADDITION
 } from './periodic-elements/data';
-import { ThrowStmt } from '@angular/compiler';
+import { ThisReceiver, ThrowStmt } from '@angular/compiler';
 
 @Component({
   selector: 'app-root',
@@ -30,8 +31,12 @@ export class AppComponent {
   innerDisplayColumns = PERIODIC_ELEMENTS_INNER_COLUMNS_DATA;
   periodicElementsSelectModels = PERIODIC_ELEMENTS_SELECT_MODELS;
   periodicElementsInnerSelectModels = PERIODIC_ELEMENTS_INNER_SELECT_MODELS;
+  elementsForAddition = ELEMENTS_FOR_ADDITION;
+  elementsForAdditionCounter: number = 0;
 
-  onRowDeleted: PeriodicElement | undefined;
+  onRowDeleted: Subject<boolean> = new Subject<boolean>();
+
+  onRowAdded: Subject<boolean> = new Subject<boolean>();
 
   constructor() {}
 
@@ -48,12 +53,33 @@ export class AppComponent {
   }
 
   addRow() {
-    console.log('added new row');
+    console.log('add new row');
+    const rowForAddition: PeriodicElement = this.elementsForAddition[this.elementsForAdditionCounter];
+
+    this.dataSource.push(rowForAddition);
+
+    this.dataSource = JSON.parse(JSON.stringify(this.dataSource));
+
+    this.onRowAdded.next(true);
+
+    if (this.elementsForAdditionCounter < this.elementsForAddition.length - 1) {
+      this.elementsForAdditionCounter++;
+    }
   }
 
   deleteRow(elementForDeletion: PeriodicElement) {
-    console.log(elementForDeletion);
     this.dataSource = this.dataSource.filter(x => x.position !== elementForDeletion.position);
-    this.onRowDeleted = elementForDeletion;
+    this.onRowDeleted.next(true);
+  }
+
+  addNewSubrow(row: PeriodicElement) {
+    console.log('add new subrow for row:');
+    console.log(row);
+
+  }
+
+  deleteSubrow(obj: { row: PeriodicElement, subrow: Record<string, unknown>}) {
+    console.log(`the subrow for deletion is: ${ JSON.stringify(obj.subrow) }`);
+    console.log(`the main row is: ${ JSON.stringify(obj.row) }`);
   }
 }

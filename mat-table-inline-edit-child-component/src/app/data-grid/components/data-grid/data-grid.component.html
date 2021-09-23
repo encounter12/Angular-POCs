@@ -103,6 +103,7 @@
                     *ngIf="rowElement.get(expandedDetailFormControlName)?.value[expandedDetailFormControlName]?.length"
                     [@detailExpand]="rowElement == expandedElement ? 'expanded' : 'collapsed'">
                         <app-row-details
+                            *ngIf="rowElement.get(isElementExpandedFormControlName)?.value"
                             class="inner-table"
                             [hidden]="!expandedElement"
                             formControlName="{{expandedDetailFormControlName}}"
@@ -112,9 +113,11 @@
                             [isRowSelectionEnabled]="rowSelection"
                             [subrowSelection]="subrowSelection"
                             [masterRow]="rowElement"
-                            [onMainRowSelected]="mainRowSelectedObj"
                             [rowSelectionFormControlName]="rowSelectionFormControlName"
-                            (onSelectSubrow)="toggleSubrowSelection(rowElement)">
+                            (onSelectSubrow)="toggleSubrowSelection(rowElement)"
+                            (onSubrowAddition)="addNewSubrow(rowElement)"
+                            (onSubrowDeletion)="deleteSubrow($event, rowElement)"
+                            >
                         </app-row-details>
                 </div>
             </td>

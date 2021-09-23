@@ -408,7 +408,40 @@ export const PERIODIC_ELEMENTS_SELECT_MODELS: SelectColumnMappingModel[] = [
       }
     ]
   }
-]
+];
+
+export const ELEMENTS_FOR_ADDITION: PeriodicElement[] = [
+  {
+    position: 11,
+    name: 'Sodium',
+    weight: 22.989,
+    isGas: false,
+    discoveredOn: new Date('1919-02-25'),
+    classificationId: 1,
+    isotopes: [
+    {
+      name: 'Na-22',
+      protons: 11, 
+      neutrons: 11,
+      discoveredOn: new Date('1934-11-29'),
+      classificationId: 1
+    },
+    {
+      name: 'Na-23',
+      protons: 11, 
+      neutrons: 12,
+      discoveredOn: new Date('1962-04-11'),
+      classificationId: 1
+    },
+    {
+      name: 'Na-24',
+      protons: 11, 
+      neutrons: 13,
+      discoveredOn: new Date('1971-11-01'),
+      classificationId: 1
+    }]
+  }
+];
 
 export const PERIODIC_ELEMENTS_INNER_SELECT_MODELS: SelectColumnMappingModel[] = [
   {
