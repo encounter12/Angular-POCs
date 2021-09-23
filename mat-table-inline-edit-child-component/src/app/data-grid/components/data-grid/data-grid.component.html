@@ -24,7 +24,7 @@
             <td mat-cell *matCellDef="let row; let rowIndex = dataIndex">
                 <mat-checkbox
                     (click)="$event.stopPropagation()"
-                    (change)="onRowSelectionChange($event, row, rowIndex)"
+                    (change)="onRowSelectionChange($event, row)"
                     [checked]="isRowSelected(row)"
                     [aria-label]="checkboxLabel(row, rowIndex)">
                 </mat-checkbox>

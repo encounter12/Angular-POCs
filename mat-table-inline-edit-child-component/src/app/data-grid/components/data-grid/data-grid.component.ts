@@ -284,7 +284,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
     this.rowSelectionService.clearSelectedRows(rowsOnPage, this.rowSelectionFormControlName, this.expandedDetailFormControlName);
   }
 
-  onRowSelectionChange(event: MatCheckboxChange, row: FormGroup, rowIndex: number) {
+  onRowSelectionChange(event: MatCheckboxChange, row: FormGroup) {
     return event ? this.toggleRowSelection(row) : null;
   }
 
@@ -390,7 +390,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
   toggleSubrowSelection(row: FormGroup) {
     if (this.getSelectedSubrowsCount(row) > 0 &&
       !this.isRowSelected(row)) {
-        this.rowSelectionService.selectRow(row, this.rowSelectionFormControlName, this.expandedDetailFormControlName);
+        this.rowSelectionService.selectRow(row, this.rowSelectionFormControlName, undefined);
     }
   }
 
