@@ -202,6 +202,8 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
   }
 
   initializeMatTable(data: T[]) {
+    data = JSON.parse(JSON.stringify(data));
+
     const firstDataSourceElement = data[0];
     this.parentFormFormArray = this.formBuilder.array([])
 
@@ -388,7 +390,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
   toggleSubrowSelection(row: FormGroup) {
     if (this.getSelectedSubrowsCount(row) > 0 &&
       !this.isRowSelected(row)) {
-        this.rowSelectionService.selectRow(row, this.rowSelectionFormControlName, this.isElementExpandedFormControlName);
+        this.rowSelectionService.selectRow(row, this.rowSelectionFormControlName, this.expandedDetailFormControlName);
     }
   }
 

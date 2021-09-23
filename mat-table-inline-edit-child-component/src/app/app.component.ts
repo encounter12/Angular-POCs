@@ -12,6 +12,7 @@ import {
   ELEMENTS_FOR_ADDITION
 } from './periodic-elements/data';
 import { ThisReceiver, ThrowStmt } from '@angular/compiler';
+import { Isotope } from './periodic-elements/models/isotope';
 
 @Component({
   selector: 'app-root',
@@ -57,7 +58,6 @@ export class AppComponent {
     const rowForAddition: PeriodicElement = this.elementsForAddition[this.elementsForAdditionCounter];
 
     this.dataSource.push(rowForAddition);
-
     this.dataSource = JSON.parse(JSON.stringify(this.dataSource));
 
     this.onRowAdded.next(true);
@@ -78,7 +78,11 @@ export class AppComponent {
 
   }
 
-  deleteSubrow(obj: { row: PeriodicElement, subrow: Record<string, unknown>}) {
+  deleteSubrow(obj: { row: PeriodicElement, subrow: Isotope }) {
+    this.dataSource = this.dataSource.map((row: PeriodicElement) => {
+      row.isotopes = row.isotopes.filter((sr: Isotope) => sr.name !== obj.subrow.name);
+      return row;
+    })
     console.log(`the subrow for deletion is: ${ JSON.stringify(obj.subrow) }`);
     console.log(`the main row is: ${ JSON.stringify(obj.row) }`);
   }
