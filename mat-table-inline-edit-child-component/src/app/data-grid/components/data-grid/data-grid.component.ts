@@ -45,15 +45,15 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
   private _dataSource: Observable<T[]> | T[] = [];
     
   @Input() set dataSource(value: Observable<T[]> | T[]) {
-    this._dataSource = value;
-
-    if (isObservable(this._dataSource)) {
-      this.getDataSource().subscribe((data: T[]) => {
+    if (isObservable(value)) {
+      this.getDataSource(value).subscribe((data: T[]) => {
+        this._dataSource = data;
         this.initializeMatTable(data);
         this.setPaginationAndSorting();
       });
     } else {
-      this.initializeMatTable(this._dataSource);
+      this._dataSource = value;
+      this.initializeMatTable(this._dataSource as T[]);
       this.setPaginationAndSorting();
     }
   }
@@ -286,8 +286,8 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
     return event ? this.toggleRowSelection(row) : null;
   }
 
-  getDataSource(): Observable<T[]> {
-    return (<Observable<T[]>>this.dataSource).pipe(
+  getDataSource(rowData: Observable<T[]>): Observable<T[]> {
+    return rowData.pipe(
         tap(res => res)
     );
   }

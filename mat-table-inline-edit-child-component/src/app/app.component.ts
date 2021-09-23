@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { Observable, of, Subject } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { Subject, BehaviorSubject } from 'rxjs';
 
 import { PeriodicElement } from './periodic-elements/models/periodic-element';
 
@@ -11,7 +11,7 @@ import {
   PERIODIC_ELEMENTS_INNER_SELECT_MODELS,
   ELEMENTS_FOR_ADDITION
 } from './periodic-elements/data';
-import { ThisReceiver, ThrowStmt } from '@angular/compiler';
+
 import { Isotope } from './periodic-elements/models/isotope';
 
 @Component({
@@ -19,10 +19,13 @@ import { Isotope } from './periodic-elements/models/isotope';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
+
+  isDataSourceObservable = true;
 
   dataSource: PeriodicElement[] = ELEMENT_DATA;
-  dataSourceObservable: Observable<PeriodicElement[]> = of(ELEMENT_DATA);
+  dataSourceBehaviorSubject = new BehaviorSubject<PeriodicElement[]>(ELEMENT_DATA);
+  dataSourceObservable = this.dataSourceBehaviorSubject.asObservable();
 
   updatedForm: any[] = [];
   selectedRows: any[] = [];
@@ -41,6 +44,9 @@ export class AppComponent {
 
   constructor() {}
 
+  ngOnInit() {
+  }
+
   printUpdatedForm(updatedForm: any[]) {
     this.updatedForm = updatedForm;
   }
@@ -54,11 +60,14 @@ export class AppComponent {
   }
 
   addRow() {
-    console.log('add new row');
     const rowForAddition: PeriodicElement = this.elementsForAddition[this.elementsForAdditionCounter];
 
-    this.dataSource.push(rowForAddition);
-    this.dataSource = JSON.parse(JSON.stringify(this.dataSource));
+    this.addRowToData(rowForAddition);
+    this.getData();
+
+    if (this.isDataSourceObservable) {
+      this.dataSourceBehaviorSubject.next(this.dataSource);
+    }
 
     this.onRowAdded.next(true);
 
@@ -67,23 +76,46 @@ export class AppComponent {
     }
   }
 
+  private addRowToData(row: PeriodicElement) {
+    this.dataSource.push(row);
+  }
+
+  private getData() {
+    this.dataSource = JSON.parse(JSON.stringify(this.dataSource));
+  }
+
   deleteRow(elementForDeletion: PeriodicElement) {
-    this.dataSource = this.dataSource.filter(x => x.position !== elementForDeletion.position);
+
+    this.deleteRowFromData(elementForDeletion);
+
+    if (this.isDataSourceObservable) {
+      this.dataSourceBehaviorSubject.next(this.dataSource);
+    }
+
     this.onRowDeleted.next(true);
+  }
+
+  private deleteRowFromData(elementForDeletion: PeriodicElement) {
+    this.dataSource = this.dataSource.filter(x => x.position !== elementForDeletion.position);
   }
 
   addNewSubrow(row: PeriodicElement) {
     console.log('add new subrow for row:');
     console.log(row);
-
   }
 
   deleteSubrow(obj: { row: PeriodicElement, subrow: Isotope }) {
+    this.deleteSubrowFromData(obj);
+
+    if (this.isDataSourceObservable) {
+      this.dataSourceBehaviorSubject.next(this.dataSource);
+    }
+  }
+
+  private deleteSubrowFromData(obj: { row: PeriodicElement, subrow: Isotope }) {
     this.dataSource = this.dataSource.map((row: PeriodicElement) => {
       row.isotopes = row.isotopes.filter((sr: Isotope) => sr.name !== obj.subrow.name);
       return row;
     })
-    console.log(`the subrow for deletion is: ${ JSON.stringify(obj.subrow) }`);
-    console.log(`the main row is: ${ JSON.stringify(obj.row) }`);
   }
 }
