@@ -2,7 +2,6 @@ import {
   Component,
   OnInit,
   AfterViewInit,
-  ChangeDetectorRef,
   Input,
   Output,
   EventEmitter,
@@ -158,7 +157,6 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private changeDetectorRef: ChangeDetectorRef,
     public dataGridHelperService: DataGridHelperService<T>,
     public rowSelectionService: RowSelectionService,
     public dialog: MatDialog) {
