@@ -69,7 +69,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
   @Input() selectInnerColumnMappingModels: SelectColumnMappingModel[] = [];
 
   @Input() hasFilter = false;
-  @Input() hasPagination = true;
+  @Input() hasPagination = false;
   @Input() pageSizeOptions: number[] = [5, 10, 25, 50, 100];
 
   @Input() hasSorting = false;
