@@ -1,6 +1,7 @@
 import { PeriodicElement } from './models/periodic-element';
 import { ColumnHeader } from '../data-grid/models/column-header';
 import { SelectColumnMappingModel } from '../data-grid/models/select-models';
+import { Isotope } from './models/isotope';
 
 export const PERIODIC_ELEMENTS_COLUMNS_DATA: ColumnHeader[] = [
   {
@@ -458,5 +459,29 @@ export const PERIODIC_ELEMENTS_INNER_SELECT_MODELS: SelectColumnMappingModel[] =
         displayOrder: 2
       }
     ]
+  }
+]
+
+export const ISOTOPES_FOR_ADDITION: Isotope[] = [
+  {
+    name: 'Mg-24',
+    protons: 12, 
+    neutrons: 12,
+    discoveredOn: new Date('1952-03-12'),
+    classificationId: 1
+  },
+  {
+    name: 'Mg-25',
+    protons: 12, 
+    neutrons: 13,
+    discoveredOn: new Date('1912-06-15'),
+    classificationId: 1
+  },
+  {
+    name: 'Mg-26',
+    protons: 12, 
+    neutrons: 14,
+    discoveredOn: new Date('1933-01-17'),
+    classificationId: 1
   }
 ]
