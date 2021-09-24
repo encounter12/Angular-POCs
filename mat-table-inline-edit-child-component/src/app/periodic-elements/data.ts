@@ -1,7 +1,10 @@
+import { AbstractControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+
 import { PeriodicElement } from './models/periodic-element';
 import { ColumnHeader } from '../data-grid/models/column-header';
 import { SelectColumnMappingModel } from '../data-grid/models/select-models';
 import { Isotope } from './models/isotope';
+import { ValidationObject } from '../data-grid/models/validation-object';
 
 export const PERIODIC_ELEMENTS_COLUMNS_DATA: ColumnHeader[] = [
   {
@@ -17,7 +20,11 @@ export const PERIODIC_ELEMENTS_COLUMNS_DATA: ColumnHeader[] = [
       displayName: 'Name',
       isEditable: true,
       isVisible: true,
-      validators: [],
+      validators: [
+        new ValidationObject(Validators.required, 'required', 'The field is required'),
+        new ValidationObject(Validators.maxLength(15), 'maxlength', 'The field exceeded max length: 15'),
+        new ValidationObject(forbiddenNameValidator(/bob/i), 'forbiddenName', "The name should not contain 'bob'")
+      ],
       propertyType: 'text'
   },
   {
@@ -62,6 +69,13 @@ export const PERIODIC_ELEMENTS_COLUMNS_DATA: ColumnHeader[] = [
     hasSubrowArray: true
   }
 ];
+
+export function forbiddenNameValidator(nameRe: RegExp): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const forbidden = nameRe.test(control.value);
+    return forbidden ? {forbiddenName: {value: control.value}} : null;
+  };
+}
 
 export const PERIODIC_ELEMENTS_INNER_COLUMNS_DATA: ColumnHeader[] = [
   {

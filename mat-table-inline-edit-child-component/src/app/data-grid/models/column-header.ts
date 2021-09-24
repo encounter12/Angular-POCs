@@ -1,3 +1,5 @@
+import { ValidationObject } from "./validation-object";
+
 export class ColumnHeader {
     public name: string = '';
 
@@ -7,7 +9,7 @@ export class ColumnHeader {
 
     public isVisible: boolean = true;
 
-    public validators: string[] = [];
+    public validators: ValidationObject[] = [];
 
     public propertyType: string = '';
 

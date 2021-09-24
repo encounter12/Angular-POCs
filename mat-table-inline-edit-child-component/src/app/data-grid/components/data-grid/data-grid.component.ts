@@ -8,7 +8,7 @@ import {
   ViewChild
 } from '@angular/core';
 
-import { FormArray, FormBuilder, FormControl, FormGroup, AbstractControl } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, AbstractControl, Validators, ValidatorFn } from '@angular/forms';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
@@ -25,6 +25,7 @@ import { SelectColumnMappingModel } from '../../models/select-models';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 
 import { RowSelectionService } from '../../helpers/row-selection-service';
+import { ValidationObject } from '../../models/validation-object';
 
 @Component({
   selector: 'data-grid',
@@ -48,7 +49,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
     if (isObservable(value)) {
       this.getDataSource(value).subscribe((data: T[]) => {
         this._dataSource = data;
-        this.initializeMatTable(data);
+        this.initializeMatTable(this._dataSource);
         this.setPaginationAndSorting();
       });
     } else {
@@ -311,6 +312,8 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
         subrowArrayDisplayCol.name &&
         subrowArrayDisplayCol.name.length > 0;
 
+      const currentDisplayCol: ColumnHeader | undefined = this.displayColumns.find(dc => dc.name === key);
+
       if (isSubrowArrayColNameValid && subrowArrayDisplayCol?.name === key && !hasSetSubrowArray) {
           arrayElementFormObj[key] = this.buildFormControlArrayObject(key, Array.from(propValue));
           this.subrowArrayPropName = key;
@@ -319,7 +322,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
           arrayElementFormObj[key] = this.buildFormControlArrayObject(key, Array.from(propValue));
           hasSetSubrowArray = true;
       } else {
-        arrayElementFormObj[key] = this.formBuilder.control(propValue);
+        arrayElementFormObj[key] = this.formBuilder.control(propValue, this.buildValidatorsForControl(currentDisplayCol?.validators));
       }
     });
 
@@ -332,6 +335,28 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
     arrayElementFormGroup.addControl(this.isElementExpandedFormControlName, this.formBuilder.control(false), { emitEvent: false });
 
     return arrayElementFormGroup;
+  }
+
+  public getCellValidationMessage(cellFormControl: AbstractControl, validationObjects: ValidationObject[]) {
+    let errors = '';
+
+    if (cellFormControl?.errors) {
+      const keysWithErrors = Object.keys(cellFormControl.errors).filter(key => cellFormControl.errors?.[key]);
+      errors = keysWithErrors.map((key: string) =>
+        validationObjects.find(vo => vo.name === key)?.error).join(', ');
+    }
+
+    return errors;
+  }
+
+  private buildValidatorsForControl(validationObjects: ValidationObject[] | undefined): ValidatorFn[] {
+    let validators: ValidatorFn[] = [];
+
+    if (validationObjects) {
+      validators = validationObjects.map((vo: ValidationObject) => vo.validator);
+    }
+
+    return validators;
   }
 
   private buildFormControlArrayObject(key: string, propValue: any[]): FormControl {

@@ -54,7 +54,12 @@
                     </ng-container>
                     <ng-container [ngSwitch]="displayCol.propertyType" *ngIf="displayCol.isEditable">
                         <mat-form-field floatLabel="never" *ngSwitchCase="'text'">
-                            <input matInput type="text" placeholder="{{displayCol.displayName}}" [formControlName]="displayCol.name">
+                            <input
+                                matInput
+                                type="text"
+                                placeholder="{{displayCol.displayName}}"
+                                [formControlName]="displayCol.name"
+                                [matTooltip]="getCellValidationMessage(row.get(displayCol.name), displayCol.validators)">
                         </mat-form-field>
                         <mat-form-field floatLabel="never" *ngSwitchCase="'number'">
                             <input matInput type="number" placeholder="{{displayCol.displayName}}" [formControlName]="displayCol.name">
