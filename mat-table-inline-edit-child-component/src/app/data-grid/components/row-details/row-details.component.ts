@@ -8,7 +8,8 @@ import {
 	NG_VALIDATORS,
 	AbstractControl,
 	ValidationErrors,
-  FormArray
+  FormArray,
+  ValidatorFn
 } from '@angular/forms';
 
 import { Subscription } from 'rxjs';
@@ -18,6 +19,8 @@ import { SelectColumnMappingModel } from '../../models/select-models';
 
 import { MatTableDataSource } from '@angular/material/table';
 import { RowSelectionService } from '../../helpers/row-selection-service';
+import { ValidationService } from '../../helpers/validation-service';
+import { ValidationObject } from '../../models/validation-object';
 
 @Component({
   selector: 'app-row-details',
@@ -77,7 +80,8 @@ export class RowDetailsComponent<T> implements OnDestroy, ControlValueAccessor, 
   constructor(
     private formBuilder: FormBuilder,
     public dataGridHelperService: DataGridHelperService<T>,
-    public rowSelectionService: RowSelectionService) {
+    public rowSelectionService: RowSelectionService,
+    public validationService: ValidationService) {
   }
 
   ngOnDestroy() {
@@ -125,8 +129,8 @@ export class RowDetailsComponent<T> implements OnDestroy, ControlValueAccessor, 
     return this.rowSelectionService.isRowSelected(row, this.rowSelectionFormControlName);
   }
 
-  areSelectedRowsValid(): boolean {
-    return this.rowSelectionService.areRowsValid(this.matTableDataSource.data, this.rowSelectionFormControlName);
+  areSelectedRowsValid(allRows: AbstractControl[], rowSelectionFormControlName: string): boolean {
+    return this.rowSelectionService.areSelectedRowsValid(allRows, rowSelectionFormControlName);
   }
 
   selectAllRows() {
@@ -157,7 +161,8 @@ export class RowDetailsComponent<T> implements OnDestroy, ControlValueAccessor, 
     let arrayElementFormGroupObj: any = {};
 
     Object.keys(element).forEach((key: string) => {
-      arrayElementFormGroupObj[key] = this.formBuilder.control((element as any)[key]);
+      const currentDisplayCol: ColumnHeader | undefined = this.innerDisplayColumns.find(dc => dc.name === key);
+      arrayElementFormGroupObj[key] = this.formBuilder.control((element as any)[key], this.buildValidatorsForControl(currentDisplayCol?.validators));
     });
     
     const arrayElementFormGroup = this.formBuilder.group(arrayElementFormGroupObj);
@@ -184,6 +189,14 @@ export class RowDetailsComponent<T> implements OnDestroy, ControlValueAccessor, 
     return selectedElement;
   }
 
+  public getCellValidationMessage(cellFormControl: AbstractControl, validationObjects: ValidationObject[]): string {
+    return this.validationService.getCellValidationMessage(cellFormControl, validationObjects);
+  }
+
+  private buildValidatorsForControl(validationObjects: ValidationObject[] | undefined): ValidatorFn[] {
+    return this.validationService.buildValidatorsForControl(validationObjects);
+  }
+  
   //Required by the signature of: ControlValueAccessor
   writeValue(val: any): void {
     if (!val) {
@@ -200,7 +213,7 @@ export class RowDetailsComponent<T> implements OnDestroy, ControlValueAccessor, 
     );
 
     this.subrowGroup.setControl(this.subrowArrayPropName, this.subrowFormArray, { emitEvent: false });
-    
+
     this.buildDisplayColumns(arr);
 
     this.matTableDataSource = new MatTableDataSource<AbstractControl>(this.subrowFormArray.controls);

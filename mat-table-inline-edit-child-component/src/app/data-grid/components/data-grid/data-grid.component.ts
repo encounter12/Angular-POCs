@@ -26,6 +26,7 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 
 import { RowSelectionService } from '../../helpers/row-selection-service';
 import { ValidationObject } from '../../models/validation-object';
+import { ValidationService } from '../../helpers/validation-service';
 
 @Component({
   selector: 'data-grid',
@@ -82,7 +83,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
   isElementExpandedFormControlName = 'dataGridIsElementExpanded';
 
   @Output() onFormUpdate = new EventEmitter<any[]>();
-  @Output() onSelectRow = new EventEmitter<T[]>();
+  @Output() onSelectRow = new EventEmitter<{ rows: T[], areValid: boolean }>();
   @Output() onSubmit = new EventEmitter<T[]>();
   
   @Output() onRowAddition = new EventEmitter();
@@ -105,7 +106,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator | null;
   @ViewChild(MatSort) sort!: MatSort;
 
-  get selectedFormArrayElements(): T[] {
+  geSelectedFormArrayElements(): T[] {
     let selectedElements: T[] = [];
 
     for (let control of this.parentFormFormArray.controls) {
@@ -160,7 +161,8 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
     private formBuilder: FormBuilder,
     public dataGridHelperService: DataGridHelperService<T>,
     public rowSelectionService: RowSelectionService,
-    public dialog: MatDialog) {
+    public dialog: MatDialog,
+    public validationService: ValidationService) {
   }
 
   ngOnInit() {
@@ -234,8 +236,13 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
 
       this.onFormUpdate.emit(elements);
 
-      if (this.rowSelection && this.parentFormGroup.valid) {
-        this.onSelectRow.emit(this.selectedFormArrayElements);
+      const selectedFormArrayElements = this.geSelectedFormArrayElements();
+
+      if (this.rowSelection && this.parentFormGroup.valid && selectedFormArrayElements?.length > 0) {
+        this.onSelectRow.emit({ 
+          rows: selectedFormArrayElements,
+          areValid: this.areSelectedRowsValid(this.matTableDataSource.data, this.rowSelectionFormControlName)
+        });
       }
     });
 
@@ -315,11 +322,11 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
       const currentDisplayCol: ColumnHeader | undefined = this.displayColumns.find(dc => dc.name === key);
 
       if (isSubrowArrayColNameValid && subrowArrayDisplayCol?.name === key && !hasSetSubrowArray) {
-          arrayElementFormObj[key] = this.buildFormControlArrayObject(key, Array.from(propValue));
+          arrayElementFormObj[key] = this.buildFormControlArrayObject(key, Array.from(propValue), currentDisplayCol?.validators);
           this.subrowArrayPropName = key;
           hasSetSubrowArray = true;
       } else if (propValue.constructor === Array && !hasSetSubrowArray) {
-          arrayElementFormObj[key] = this.buildFormControlArrayObject(key, Array.from(propValue));
+          arrayElementFormObj[key] = this.buildFormControlArrayObject(key, Array.from(propValue), currentDisplayCol?.validators);
           hasSetSubrowArray = true;
       } else {
         arrayElementFormObj[key] = this.formBuilder.control(propValue, this.buildValidatorsForControl(currentDisplayCol?.validators));
@@ -337,29 +344,15 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
     return arrayElementFormGroup;
   }
 
-  public getCellValidationMessage(cellFormControl: AbstractControl, validationObjects: ValidationObject[]) {
-    let errors = '';
-
-    if (cellFormControl?.errors) {
-      const keysWithErrors = Object.keys(cellFormControl.errors).filter(key => cellFormControl.errors?.[key]);
-      errors = keysWithErrors.map((key: string) =>
-        validationObjects.find(vo => vo.name === key)?.error).join(', ');
-    }
-
-    return errors;
+  public getCellValidationMessage(cellFormControl: AbstractControl, validationObjects: ValidationObject[]): string {
+    return this.validationService.getCellValidationMessage(cellFormControl, validationObjects);
   }
 
   private buildValidatorsForControl(validationObjects: ValidationObject[] | undefined): ValidatorFn[] {
-    let validators: ValidatorFn[] = [];
-
-    if (validationObjects) {
-      validators = validationObjects.map((vo: ValidationObject) => vo.validator);
-    }
-
-    return validators;
+    return this.validationService.buildValidatorsForControl(validationObjects);
   }
 
-  private buildFormControlArrayObject(key: string, propValue: any[]): FormControl {
+  private buildFormControlArrayObject(key: string, propValue: any[], validationObjects: ValidationObject[] | undefined): FormControl {
     const subrowArrayObj: any = {};
 
     if (this.rowSelection) {
@@ -369,7 +362,8 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
     }
 
     subrowArrayObj[key] = propValue;
-    return this.formBuilder.control(subrowArrayObj);
+    const controlValidators = this.buildValidatorsForControl(validationObjects);
+    return this.formBuilder.control(subrowArrayObj, controlValidators);
   }
 
   isAllSelected() {
@@ -442,13 +436,14 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
   }
 
   submit() {
-    if (this.rowSelection && this.areSelectedRowsValid()) {
-      this.onSubmit.emit(this.selectedFormArrayElements);
+    if (this.rowSelection && this.areSelectedRowsValid(this.matTableDataSource.data, this.rowSelectionFormControlName)) {
+      const selectedFormArrayElements = this.geSelectedFormArrayElements();
+      this.onSubmit.emit(selectedFormArrayElements);
     }
   }
 
-  areSelectedRowsValid(): boolean {
-    return this.rowSelectionService.areRowsValid(this.matTableDataSource.data, this.rowSelectionFormControlName);
+  areSelectedRowsValid(allRows: AbstractControl[], rowSelectionFormControlName: string): boolean {
+    return this.rowSelectionService.areSelectedRowsValid(allRows, rowSelectionFormControlName);
   }
 
   applyFilter(event: Event) {

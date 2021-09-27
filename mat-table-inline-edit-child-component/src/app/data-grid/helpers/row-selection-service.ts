@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AbstractControl, FormControl } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
 
 @Injectable({
   providedIn: 'root',
@@ -99,7 +99,8 @@ export class RowSelectionService {
         return !rows.some((row: AbstractControl) => !row?.get(formControlName)?.value);
     }
 
-    areRowsValid(rows: AbstractControl[], formControlName: string): boolean {
-        return !rows.some((row: AbstractControl) => row.get(formControlName)?.invalid);
+    areSelectedRowsValid(allRows: AbstractControl[], rowSelectionFormControlName: string): boolean {
+        const selectedRows = this.getSelectedRows(allRows, rowSelectionFormControlName);
+        return !selectedRows.some(x => x.invalid);
     }
 }

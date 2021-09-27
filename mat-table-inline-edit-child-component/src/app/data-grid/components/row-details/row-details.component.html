@@ -24,7 +24,11 @@
         </ng-container>
         <ng-container [ngSwitch]="innerColumn.propertyType" *ngIf="innerColumn.isEditable">
           <mat-form-field floatLabel="never" *ngSwitchCase="'text'">
-              <input matInput type="text" placeholder="{{innerColumn.displayName}}" [formControlName]="innerColumn.name">
+              <input
+                matInput type="text"
+                placeholder="{{innerColumn.displayName}}"
+                [formControlName]="innerColumn.name"
+                [matTooltip]="getCellValidationMessage(row.get(innerColumn.name), innerColumn.validators)">
           </mat-form-field>
           <mat-form-field floatLabel="never" *ngSwitchCase="'number'">
               <input matInput type="number" placeholder="{{innerColumn.displayName}}" [formControlName]="innerColumn.name" (click)="$event.stopPropagation()">

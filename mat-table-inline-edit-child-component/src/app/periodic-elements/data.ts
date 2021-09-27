@@ -83,7 +83,11 @@ export const PERIODIC_ELEMENTS_INNER_COLUMNS_DATA: ColumnHeader[] = [
       displayName: 'Name',
       isEditable: true,
       isVisible: true,
-      validators: [],
+      validators: [
+        new ValidationObject(Validators.required, 'required', 'The field is required'),
+        new ValidationObject(Validators.maxLength(15), 'maxlength', 'The field exceeded max length: 15'),
+        new ValidationObject(forbiddenNameValidator(/bob/i), 'forbiddenName', "The name should not contain 'bob'")
+      ],
       propertyType: 'text'
   },
   {

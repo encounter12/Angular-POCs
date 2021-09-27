@@ -29,7 +29,8 @@ export class AppComponent implements OnInit {
   dataSourceObservable = this.dataSourceBehaviorSubject.asObservable();
 
   updatedForm: any[] = [];
-  selectedRows: any[] = [];
+  selectedRows: PeriodicElement[] = [];
+  areSelectedRowsValid: boolean | undefined;
   submittedElements: any[] = [];
 
   periodicElementsColDefinition = PERIODIC_ELEMENTS_COLUMNS_DATA;
@@ -54,8 +55,9 @@ export class AppComponent implements OnInit {
     this.updatedForm = updatedForm;
   }
 
-  onSelectRow(selectedRows: any[]) {
-    this.selectedRows = selectedRows;
+  onSelectRow(selectionObject: { rows: PeriodicElement[], areValid: boolean }) {
+    this.selectedRows = selectionObject.rows;
+    this.areSelectedRowsValid = selectionObject.areValid;
   }
 
   onSubmit(submitted: any[]) {
