@@ -362,8 +362,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
     }
 
     subrowArrayObj[key] = propValue;
-    const controlValidators = this.buildValidatorsForControl(validationObjects);
-    return this.formBuilder.control(subrowArrayObj, controlValidators);
+    return this.formBuilder.control(subrowArrayObj);
   }
 
   isAllSelected() {

@@ -9,7 +9,8 @@ import {
 	AbstractControl,
 	ValidationErrors,
   FormArray,
-  ValidatorFn
+  ValidatorFn,
+  FormControl
 } from '@angular/forms';
 
 import { Subscription } from 'rxjs';
@@ -164,7 +165,7 @@ export class RowDetailsComponent<T> implements OnDestroy, ControlValueAccessor, 
       const currentDisplayCol: ColumnHeader | undefined = this.innerDisplayColumns.find(dc => dc.name === key);
       arrayElementFormGroupObj[key] = this.formBuilder.control((element as any)[key], this.buildValidatorsForControl(currentDisplayCol?.validators));
     });
-    
+
     const arrayElementFormGroup = this.formBuilder.group(arrayElementFormGroupObj);
 
     return arrayElementFormGroup;
@@ -235,10 +236,30 @@ export class RowDetailsComponent<T> implements OnDestroy, ControlValueAccessor, 
 	}
 
   //Required by the signature of: ControlValueAccessor
-	validate(control: AbstractControl): ValidationErrors | null {
-    return control.errors;
-	}
-
-  //Required by the signature of: ControlValueAccessor
 	registerOnValidatorChange?(fn: () => void): void { }
+
+  //Required by the signature of: Validator
+	validate(control: FormControl): ValidationErrors | null {
+    let validationErrors: ValidationErrors | null = null;
+
+    this.subrowFormArray.controls.forEach((control: AbstractControl, index: number) => {
+      const arrayElementFormGroup = control as FormGroup;
+      let rowValidationErrors: { controlName: string, errors: ValidationErrors | null | undefined }[] = [];
+      Object.keys(arrayElementFormGroup.controls).forEach((formControlName: string) => {
+        const controlErrors = arrayElementFormGroup.get(formControlName)?.errors;
+        if (controlErrors && Object.keys(controlErrors).length > 0) {
+          rowValidationErrors.push({ controlName: formControlName, errors: controlErrors });
+        }
+      });
+
+      if (rowValidationErrors.length > 0) {
+        if (validationErrors == null) {
+          validationErrors = {};
+        }
+        validationErrors[index] = rowValidationErrors;
+      }
+    });
+
+    return validationErrors;
+	}
 }
