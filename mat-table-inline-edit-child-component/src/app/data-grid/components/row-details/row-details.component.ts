@@ -247,7 +247,15 @@ export class RowDetailsComponent<T> implements OnDestroy, ControlValueAccessor, 
 	validate(control: FormControl): ValidationErrors | null {
     let validationErrors: ValidationErrors | null = null;
 
-    this.subrowFormArray.controls.forEach((control: AbstractControl, index: number) => {
+    let subrowsForValidation: AbstractControl[] = [];
+
+    if (this.subrowSelection) {
+      subrowsForValidation = this.rowSelectionService.getSelectedRows(this.subrowFormArray.controls, this.rowSelectionFormControlName);
+    } else {
+      subrowsForValidation = this.subrowFormArray.controls;
+    }
+
+    subrowsForValidation.forEach((control: AbstractControl, index: number) => {
       const arrayElementFormGroup = control as FormGroup;
       let rowValidationErrors: { controlName: string, errors: ValidationErrors | null | undefined }[] = [];
       Object.keys(arrayElementFormGroup.controls).forEach((formControlName: string) => {

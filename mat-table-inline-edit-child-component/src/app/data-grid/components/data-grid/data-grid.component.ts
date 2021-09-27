@@ -276,7 +276,6 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
     this.columnsProps.push('actions');
 
     this.isFormEditable = this.displayColumns.some(x => x.isEditable) || this.innerDisplayColumns.some(x => x.isEditable);
-    //this.changeDetectorRef.detectChanges();
   }
 
   onMasterToggleSelectionChange(event: MatCheckboxChange) {
