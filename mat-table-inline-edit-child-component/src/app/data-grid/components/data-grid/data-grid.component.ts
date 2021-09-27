@@ -5,7 +5,8 @@ import {
   Input,
   Output,
   EventEmitter,
-  ViewChild
+  ViewChild,
+  ChangeDetectorRef
 } from '@angular/core';
 
 import { FormArray, FormBuilder, FormControl, FormGroup, AbstractControl, Validators, ValidatorFn } from '@angular/forms';
@@ -27,6 +28,7 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 import { RowSelectionService } from '../../helpers/row-selection-service';
 import { ValidationObject } from '../../models/validation-object';
 import { ValidationService } from '../../helpers/validation-service';
+import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 
 @Component({
   selector: 'data-grid',
@@ -162,7 +164,8 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
     public dataGridHelperService: DataGridHelperService<T>,
     public rowSelectionService: RowSelectionService,
     public dialog: MatDialog,
-    public validationService: ValidationService) {
+    public validationService: ValidationService,
+    public changeDetectorRef: ChangeDetectorRef) {
   }
 
   ngOnInit() {
@@ -178,6 +181,10 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
     if (this.hasSorting) {
       this.setSorting();
     }
+  }
+
+  ngAfterViewChecked(): void {
+    this.changeDetectorRef.detectChanges();
   }
 
   setPagination() {
@@ -269,6 +276,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
     this.columnsProps.push('actions');
 
     this.isFormEditable = this.displayColumns.some(x => x.isEditable) || this.innerDisplayColumns.some(x => x.isEditable);
+    //this.changeDetectorRef.detectChanges();
   }
 
   onMasterToggleSelectionChange(event: MatCheckboxChange) {
@@ -422,6 +430,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
     if (!row) {
       return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
     }
+
     return `${this.rowSelectionService.isRowSelected(row, this.rowSelectionFormControlName) ? 'deselect' : 'select'} row ${rowIndex ?? 0 + 1}`;
   }
 
@@ -484,5 +493,10 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
     if (this.hasSorting) {
       this.setSorting();
     }
+  }
+
+  onMasterDatePickerChange(event: MatDatepickerInputEvent<Date>) {
+    const selectedDate: Date | null = event.value;
+    console.log(selectedDate);
   }
 }

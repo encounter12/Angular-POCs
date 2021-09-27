@@ -1,4 +1,4 @@
-import { Component, forwardRef, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, forwardRef, OnInit, OnDestroy, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import {
   FormGroup,
 	FormBuilder,
@@ -40,7 +40,7 @@ import { ValidationObject } from '../../models/validation-object';
 		}
 	]
 })
-export class RowDetailsComponent<T> implements OnDestroy, ControlValueAccessor, Validator {
+export class RowDetailsComponent<T> implements OnDestroy, ControlValueAccessor, Validator, OnInit {
   
   @Input() innerDisplayColumns: ColumnHeader[] = [];
 
@@ -82,7 +82,12 @@ export class RowDetailsComponent<T> implements OnDestroy, ControlValueAccessor, 
     private formBuilder: FormBuilder,
     public dataGridHelperService: DataGridHelperService<T>,
     public rowSelectionService: RowSelectionService,
-    public validationService: ValidationService) {
+    public validationService: ValidationService,
+    public crf: ChangeDetectorRef) {
+  }
+
+  ngOnInit() {
+    console.log();
   }
 
   ngOnDestroy() {
