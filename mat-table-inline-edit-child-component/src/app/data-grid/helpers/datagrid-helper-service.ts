@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { AbstractControl, FormControl, FormGroup } from '@angular/forms';
+import { MatTableDataSource } from '@angular/material/table';
 
 import { ColumnHeader } from "../models/column-header";
 import { SelectOption, SelectColumnMappingModel } from '../models/select-models';
@@ -71,5 +73,54 @@ export class DataGridHelperService<T> {
         selectColumnMappingModels: SelectColumnMappingModel[]): string | undefined {
             const colOptions = this.getOptionsForColumn(columnName, selectColumnMappingModels);
             return colOptions.find(co => co.key === key)?.displayValue;
+    }
+
+    public setDatePickerForColumns(
+        date: Date | null | undefined,
+        updatableByMasterDateColumns: string[],
+        innerUpdatableByMasterDateColumns: string[],
+        expandedDetailFormControlName: string,
+        matTableDataSource: MatTableDataSource<AbstractControl>) {
+            const rowsOnPage = this.getCurrentPageRows(matTableDataSource);
+
+            rowsOnPage.forEach((row: AbstractControl) => {
+                const rowFormGroup = row as FormGroup;
+
+                updatableByMasterDateColumns.forEach((columnName: string) => {
+                    const rowDateControl = rowFormGroup.get(columnName);
+                    rowDateControl?.setValue(date);
+                });
+
+                if (expandedDetailFormControlName && expandedDetailFormControlName.length > 0 && innerUpdatableByMasterDateColumns.length > 0) {
+                    this.setDatesForExpandedDetailSubrows(date, rowFormGroup, expandedDetailFormControlName, innerUpdatableByMasterDateColumns);
+                } 
+            });
+    }
+
+    private setDatesForExpandedDetailSubrows(
+        date: Date | null | undefined,
+        row: FormGroup,
+        expandedDetailFormControlName: string,
+        innerUpdatableByMasterDateColumns: string[]): void {
+            let expandedDetail = row.get(expandedDetailFormControlName) as FormControl;
+
+            let expandedDetailArray = Array.from(expandedDetail?.value[expandedDetailFormControlName]) as Record<string, unknown>[];
+
+            expandedDetailArray?.forEach((subrow: Record<string, unknown>) => {
+
+                innerUpdatableByMasterDateColumns.forEach((columnName: string) => {
+                    if (subrow[columnName]) {
+                        subrow[columnName] = date;
+                    }
+                });
+            });
+
+            let expandedDetailObj: any = {};
+            expandedDetailObj[expandedDetailFormControlName] = expandedDetailArray;
+            expandedDetail.setValue(expandedDetailObj);
+    }
+
+    getCurrentPageRows(matTableDataSource: MatTableDataSource<AbstractControl>) {
+        return matTableDataSource.connect().value;
     }
 }

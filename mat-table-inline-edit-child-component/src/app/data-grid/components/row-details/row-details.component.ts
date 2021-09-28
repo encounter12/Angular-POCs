@@ -1,4 +1,4 @@
-import { Component, forwardRef, OnInit, OnDestroy, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import { Component, forwardRef, OnDestroy, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import {
   FormGroup,
 	FormBuilder,
@@ -40,7 +40,7 @@ import { ValidationObject } from '../../models/validation-object';
 		}
 	]
 })
-export class RowDetailsComponent<T> implements OnDestroy, ControlValueAccessor, Validator, OnInit {
+export class RowDetailsComponent<T> implements OnDestroy, ControlValueAccessor, Validator {
   
   @Input() innerDisplayColumns: ColumnHeader[] = [];
 
@@ -54,7 +54,7 @@ export class RowDetailsComponent<T> implements OnDestroy, ControlValueAccessor, 
 
   @Input() masterRow!: AbstractControl;
   
-  @Input() rowSelectionFormControlName = '';
+  @Input() rowSelectionFormControlName: string = '';
   
   @Output() onSelectSubrow = new EventEmitter();
 
@@ -84,10 +84,6 @@ export class RowDetailsComponent<T> implements OnDestroy, ControlValueAccessor, 
     public rowSelectionService: RowSelectionService,
     public validationService: ValidationService,
     public crf: ChangeDetectorRef) {
-  }
-
-  ngOnInit() {
-    console.log();
   }
 
   ngOnDestroy() {

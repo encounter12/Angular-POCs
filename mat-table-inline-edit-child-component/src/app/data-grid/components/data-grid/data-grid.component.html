@@ -3,11 +3,14 @@
         <mat-label>Filter</mat-label>
         <input matInput (keyup)="applyFilter($event)" placeholder="Filter values..." #input>
     </mat-form-field>
-    <mat-form-field appearance="standard" style="display: inline-block; margin-left: 20px">
-        <mat-label>Choose a date</mat-label>
-        <input matInput [matDatepicker]="masterDatePicker" (dateChange)="onMasterDatePickerChange($event)">
-        <mat-datepicker-toggle matSuffix [for]="masterDatePicker"></mat-datepicker-toggle>
-        <mat-datepicker #masterDatePicker></mat-datepicker>
+    <mat-form-field
+        appearance="standard"
+        style="display: inline-block; margin-left: 20px"
+        *ngIf="updatableByMasterDateColumns.length > 0 || innerUpdatableByMasterDateColumns.length > 0">
+            <mat-label>Choose a date</mat-label>
+            <input matInput [matDatepicker]="masterDatePicker" (dateChange)="onMasterDatePickerChange($event)">
+            <mat-datepicker-toggle matSuffix [for]="masterDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #masterDatePicker></mat-datepicker>
     </mat-form-field>
     <table
         mat-table

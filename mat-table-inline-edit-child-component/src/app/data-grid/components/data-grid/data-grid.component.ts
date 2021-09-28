@@ -78,6 +78,10 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
 
   @Input() hasSorting = false;
 
+  @Input() updatableByMasterDateColumns: string[] = [];
+
+  @Input() innerUpdatableByMasterDateColumns: string[] = [];
+
   matTableDataSource: MatTableDataSource<AbstractControl> = new MatTableDataSource<AbstractControl>([]);
 
   subrowArrayPropName = 'subrowArray';
@@ -104,6 +108,8 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
   expandedElement: FormGroup | null | undefined;
 
   isFormEditable = false;
+
+  masterDatePickerSelectedDate: Date | undefined | null;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator | null;
   @ViewChild(MatSort) sort!: MatSort;
@@ -169,6 +175,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
+    this.masterDatePickerSelectedDate = null;
     this.initializeMatTable(this.dataSource as T[]);
     this.setPaginationAndSorting();
   }
@@ -385,7 +392,7 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
   }
 
   getCurrentPageRows() {
-    return this.matTableDataSource.connect().value;
+    return this.dataGridHelperService.getCurrentPageRows(this.matTableDataSource);
   }
 
   selectAllRowsOnPage() {
@@ -495,7 +502,13 @@ export class DataGridComponent<T> implements OnInit, AfterViewInit {
   }
 
   onMasterDatePickerChange(event: MatDatepickerInputEvent<Date>) {
-    const selectedDate: Date | null = event.value;
-    console.log(selectedDate);
+    this.masterDatePickerSelectedDate = event.value;
+
+    this.dataGridHelperService.setDatePickerForColumns(
+      this.masterDatePickerSelectedDate,
+      this.updatableByMasterDateColumns,
+      this.innerUpdatableByMasterDateColumns,
+      this.expandedDetailFormControlName,
+      this.matTableDataSource);
   }
 }
